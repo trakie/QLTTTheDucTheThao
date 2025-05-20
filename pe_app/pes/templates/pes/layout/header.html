@@ -1,0 +1,48 @@
+<nav class="navbar navbar-expand-sm bg-dark navbar-dark">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="/">TTTDTT</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#collapsibleNavbar">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="collapsibleNavbar">
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'enroll' %}">Enroll</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">Link</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">Link</a>
+        </li>
+      </ul>
+
+      <ul class="navbar-nav ms-auto">
+                {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link text-danger" href="/">
+                            <img src="{{ user.avatar }}" width="25" class="rounded-circle"/> Chào {{ user.username }}
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="#" id="logout-link">Đăng xuất</a>
+                      <form id="logout-form" action="{% url 'logout' %}" method="post" style="display: none;">
+                        {% csrf_token %}
+                      </form>
+                    </li>
+                {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="{% url 'login' %}">Đăng nhập</a>
+                    </li>
+                {% endif %}
+            </ul>
+    </div>
+  </div>
+</nav>
+
+<script>
+  document.getElementById("logout-link").addEventListener("click", function (event) {
+    event.preventDefault(); // Prevent default link behavior
+    document.getElementById("logout-form").submit(); // Submit the hidden form
+  });
+</script>
