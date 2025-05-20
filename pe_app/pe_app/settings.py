@@ -58,7 +58,7 @@ ROOT_URLCONF = 'pe_app.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / "templates"],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -82,11 +82,19 @@ DATABASES = {
     #     'NAME': BASE_DIR / 'db.sqlite3',
     # }
 
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.mysql',
+    #     'NAME': 'pedb',
+    #     'USER': 'root',
+    #     'PASSWORD': '0420',
+    #     'HOST': '',
+    # }
+
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'pedb',
         'USER': 'root',
-        'PASSWORD': '0420',
+        'PASSWORD': '1234',
         'HOST': '',
     }
 }
@@ -134,3 +142,7 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+LOGIN_REDIRECT_URL = "home"
+LOGOUT_REDIRECT_URL = "home"
