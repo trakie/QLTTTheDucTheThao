@@ -3,6 +3,7 @@ from django.db import models
 # Create your models here.
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.templatetags.static import static
 from django.utils import timezone
 
 
@@ -67,6 +68,31 @@ class Membership(models.Model):
         return f"{self.member.username} - {self.end_date}"
 
 
+class Schedule(models.Model):
+    DAY_CHOICES = [
+        (0, 'Thứ hai'),
+        (1, 'Thứ ba'),
+        (2, 'Thứ tư'),
+        (3, 'Thứ năm'),
+        (4, 'Thứ sáu'),
+        (5, 'Thứ bảy'),
+        (6, 'Chủ nhật'),
+    ]
+
+    TIME_BLOCK_CHOICES = [
+        ('1_morning', 'Sáng'),
+        ('2_afternoon', 'Trưa'),
+        ('3_evening', 'Chiều'),
+    ]
+
+    day_of_week = models.IntegerField(choices=DAY_CHOICES)
+    time_block = models.CharField(max_length=12, choices=TIME_BLOCK_CHOICES)
+    notes = models.TextField(blank=True)
+
+    def __str__(self):
+        return f"{self.get_day_of_week_display()} - {self.get_time_block_display()}"
+
+
 class Class(models.Model):
     CLASS_TYPES = (
         ('yoga', 'Yoga'),
@@ -77,13 +103,25 @@ class Class(models.Model):
 
     name = models.CharField(max_length=100)
     class_type = models.CharField(max_length=10, choices=CLASS_TYPES)
-    schedule = models.JSONField()  # Stores days and times
+    schedule = models.ForeignKey(Schedule, on_delete=models.SET_NULL, null=True)
     trainer = models.ForeignKey(Trainer, on_delete=models.SET_NULL, null=True)
     capacity = models.PositiveIntegerField()
     description = models.TextField()
 
     def __str__(self):
         return f"{self.get_class_type_display()} - {self.name}"
+
+    @property
+    def image_url(self):
+        # Map class_type to the image file name
+        images = {
+            'yoga': 'pes/images/yoga.png',
+            'gym': 'pes/images/gym.png',
+            'swim': 'pes/images/swim.png',
+            'dance': 'pes/images/dance.png',
+        }
+        image_path = images.get(self.class_type, 'pes/images/default.png')
+        return static(image_path)
 
 
 class Enrollment(models.Model):
@@ -166,16 +204,3 @@ class Progress(models.Model):
 
     def __str__(self):
         return f"{self.enrollment} - {self.progress_date}"
-
-
-class Schedule(models.Model):
-    trainer = models.ForeignKey(Trainer, on_delete=models.CASCADE)
-    member = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
-    schedule_date = models.DateTimeField()
-    notes = models.TextField()
-
-    class Meta:
-        ordering = ['schedule_date']
-
-    def __str__(self):
-        return f"{self.trainer} - {self.member} - {self.schedule_date}"
