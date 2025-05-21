@@ -27,11 +27,30 @@ class UserProfile(AbstractUser):
     def __str__(self):
         return f"{self.username} - {self.get_role_display()}"
 
+    def save(self, *args, **kwargs):
+        # Lấy trạng thái role trước khi lưu (nếu user đã tồn tại)
+        old_role = None
+        if self.pk:
+            old_role = UserProfile.objects.get(pk=self.pk).role
+
+        # Lưu user trước
+        super().save(*args, **kwargs)
+
+        # Logic xử lý Trainer
+        if self.role == 'trainer':
+            # Tạo Trainer nếu chưa tồn tại
+            if not hasattr(self, 'trainer'):
+                Trainer.objects.create(user=self)
+        else:
+            # Xóa Trainer nếu tồn tại
+            if hasattr(self, 'trainer'):
+                self.trainer.delete()
+
 
 class Trainer(models.Model):
     user = models.OneToOneField(UserProfile, on_delete=models.CASCADE, primary_key=True)
-    specialization = models.CharField(max_length=100)
-    experience = models.TextField()
+    specialization = models.CharField(max_length=100, blank=True, default='')
+    experience = models.TextField(blank=True, default='')
     certification = models.FileField(upload_to='certifications/', null=True, blank=True)
 
     def __str__(self):
@@ -41,7 +60,7 @@ class Trainer(models.Model):
 class Membership(models.Model):
     member = models.OneToOneField(UserProfile, on_delete=models.CASCADE)
     start_date = models.DateField(default=timezone.now)
-    end_date = models.DateField()
+    end_date = models.DateField(null=True, blank=True)
     fee = models.DecimalField(max_digits=10, decimal_places=2)
 
     def __str__(self):
