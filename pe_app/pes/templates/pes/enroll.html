@@ -1,7 +1,40 @@
 {% extends 'pes/layout/base.html' %}
 
 {% block content %}
+<h1 class="text-danger text-center">Đăng ký lớp học</h1>
 
-<h1>Dang ky lop hoc</h1>
+<div class="container my-5">
+        <div class="row">
+            <!-- Hình ảnh -->
+            <div class="col-md-6">
+                <div>
+                    <img src="{{ class_obj.image_url }}" alt="{{ class_obj.name }}" class="d-block w-100">
+                </div>
+            </div>
 
+            <!-- Thông tin chi tiết -->
+            <div class="col-md-6">
+                <div>
+                    <h2>{{ class_obj.name }}</h2>
+                </div>
+                <p></p>
+                <h4 class="text-success">Giá: 1000000 VNĐ</h4>
+                <p>
+                    <strong>Trainer:</strong> {{ class_obj.trainer }}<br>
+                    <strong>Schedule:</strong> {{ class_obj.schedule }}
+                </p>
+                <a href="#" class="btn btn-success">Đăng ký lớp này</a>
+            </div>
+        </div>
+
+        <!-- Mô tả chi tiết -->
+        <div class="row mt-5">
+            <div class="col-12">
+                <h3>Mô Tả Lớp</h3>
+                <p>
+                    {{ class_obj.description }}
+                </p>
+            </div>
+        </div>
+</div>
 {% endblock %}
