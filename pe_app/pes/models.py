@@ -102,9 +102,9 @@ class Class(models.Model):
     )
 
     name = models.CharField(max_length=100)
+    price = models.FloatField(default=0)
     class_type = models.CharField(max_length=10, choices=CLASS_TYPES)
-    schedule = models.ForeignKey(Schedule, on_delete=models.SET_NULL, null=True)
-    trainer = models.ForeignKey(Trainer, on_delete=models.SET_NULL, null=True)
+    trainer = models.ForeignKey(Trainer, on_delete=models.SET_NULL, null=True, related_name='classes')
     capacity = models.PositiveIntegerField()
     description = models.TextField()
 
@@ -120,8 +120,16 @@ class Class(models.Model):
             'swim': 'pes/images/swim.png',
             'dance': 'pes/images/dance.png',
         }
-        image_path = images.get(self.class_type, 'pes/images/default.png')
+        image_path = images.get(self.class_type, 'pes/images/default_class.png')
         return static(image_path)
+
+
+class ClassSchedule(models.Model):
+    lop = models.ForeignKey(Class, on_delete=models.CASCADE, related_name='schedules')
+    schedule = models.ForeignKey(Schedule, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.lop.name} - {self.schedule}"
 
 
 class Enrollment(models.Model):

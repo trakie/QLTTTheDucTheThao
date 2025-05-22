@@ -1,0 +1,21 @@
+{% extends 'pes/layout/base.html' %}
+
+{% block content %}
+
+<h2 class="mt-2">Thông tin huấn luyện viên {{ trainer_obj }}</h2>
+<div class="row mt-4">
+    <div class="col-8">
+        <h3>Danh sách lớp đang dạy</h3>
+        <ul>
+            {% for c in trainer_obj.classes.all %}
+            <li>{{ c.name }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="col 4">
+        <img style="max-width: 250px" class="card-img-top img-hotel" src="static/pes/images/{{ trainer_obj.user.avatar }}" alt="{{ trainer_obj }}">
+    </div>
+</div>
+<a href="/">Về trang chủ</a>
+
+{% endblock %}
