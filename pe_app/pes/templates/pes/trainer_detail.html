@@ -4,18 +4,136 @@
 
 <h2 class="mt-2">Thông tin huấn luyện viên {{ trainer_obj }}</h2>
 <div class="row mt-4">
-    <div class="col-8">
+    <div class="col-9">
         <h3>Danh sách lớp đang dạy</h3>
+        {% if user.role == 'trainer' and trainer_obj.user.id == user.id %}
+        Chọn lớp:
+        <select class="form-select" id="classSelect">
+            {% for c in trainer_obj.classes.all %}
+            <option value="{{ c.id }}">{{ c.name }}</option>
+            {% endfor %}
+        </select>
+
+        <div id="studentList" class="mt-3"></div>
+        {% else %}
         <ul>
             {% for c in trainer_obj.classes.all %}
             <li>{{ c.name }}</li>
             {% endfor %}
         </ul>
+        {% endif %}
     </div>
-    <div class="col 4">
-        <img style="max-width: 250px" class="card-img-top img-hotel" src="static/pes/images/{{ trainer_obj.user.avatar }}" alt="{{ trainer_obj }}">
-    </div>
+    <div class="col-3" style="background-color: lightblue; border-radius: 20px; padding: 15px;">
+            <img src="/static/pes/images/{{ trainer_obj.user.avatar }}" width="200" class="rounded-circle d-block w-100"/>
+            <h2 class="mt-1 text-center">{{ trainer_obj.user.get_full_name }}</h2>
+            <p>
+                <h4>Thông tin cá nhân</h4>
+                &#128188 {{ trainer_obj.user.role }}<br>
+                &#128231 {{ trainer_obj.user.email }}<br>
+                &#128241 {{ trainer_obj.user.phone }}
+            </p>
+        </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Load học viên khi trang được tải
+    const classSelect = document.getElementById('classSelect');
+
+    function loadStudents() {
+        fetch(`/trainer/get-class-members/${classSelect.value}/`)
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('studentList').innerHTML = html;
+            });
+    }
+
+    // Sự kiện thay đổi lớp
+    classSelect.addEventListener('change', loadStudents);
+
+    // Load lần đầu
+    loadStudents();
+});
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Hàm hiển thị thông báo
+    function showMessage(message, type = 'success') {
+        const container = document.getElementById('messageContainer');
+        const alert = document.createElement('div');
+        alert.className = `alert alert-${type} alert-dismissible fade show mt-3`;
+        alert.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        container.appendChild(alert);
+
+        setTimeout(() => alert.remove(), 3000);
+    }
+
+    // Xử lý cập nhật trạng thái
+    document.addEventListener('click', async function(e) {
+        if (e.target.classList.contains('save-btn')) {
+            const btn = e.target;
+            const enrollmentId = btn.dataset.enrollmentId;
+            const originalStatus = btn.dataset.originalStatus;
+
+            // Lấy giá trị hiện tại từ dropdown
+            const select = document.querySelector(`#status_${enrollmentId}`);
+            const newStatus = select.value;
+
+            // Nếu trạng thái không thay đổi
+            if (newStatus === originalStatus) {
+                showMessage('Trạng thái không thay đổi', 'info');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Đang lưu...';
+
+            try {
+                const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+                const response = await fetch(`/trainer/update-enrollment/${enrollmentId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken
+                    },
+                    body: JSON.stringify({ status: newStatus })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showMessage('Cập nhật thành công!', 'success');
+                    // Cập nhật trạng thái gốc mới
+                    btn.dataset.originalStatus = newStatus;
+                    // Đổi màu nút tạm thời
+                    btn.classList.remove('btn-primary');
+                    btn.classList.add('btn-success');
+                    setTimeout(() => {
+                        btn.classList.remove('btn-success');
+                        btn.classList.add('btn-primary');
+                    }, 2000);
+                } else {
+                    showMessage(data.error || 'Lỗi cập nhật!', 'danger');
+                    // Rollback giá trị dropdown
+                    select.value = originalStatus;
+                }
+            } catch (error) {
+                showMessage('Lỗi kết nối!', 'danger');
+                select.value = originalStatus;
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = 'Lưu';
+            }
+        }
+    });
+});
+</script>
+
 <a href="/">Về trang chủ</a>
 
 {% endblock %}
