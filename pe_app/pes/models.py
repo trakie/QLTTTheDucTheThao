@@ -1,10 +1,8 @@
 from django.db import models
-
-# Create your models here.
-from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.templatetags.static import static
 from django.utils import timezone
+from django.db.models import Q
 
 
 class UserProfile(AbstractUser):
@@ -32,7 +30,8 @@ class UserProfile(AbstractUser):
         # Lấy trạng thái role trước khi lưu (nếu user đã tồn tại)
         old_role = None
         if self.pk:
-            old_role = UserProfile.objects.get(pk=self.pk).role
+            old_user = UserProfile.objects.get(pk=self.pk)
+            old_role = old_user.role
 
         # Lưu user trước
         super().save(*args, **kwargs)
@@ -40,12 +39,11 @@ class UserProfile(AbstractUser):
         # Logic xử lý Trainer
         if self.role == 'trainer':
             # Tạo Trainer nếu chưa tồn tại
-            if not hasattr(self, 'trainer'):
+            if not Trainer.objects.filter(user=self).exists():
                 Trainer.objects.create(user=self)
         else:
-            # Xóa Trainer nếu tồn tại
-            if hasattr(self, 'trainer'):
-                self.trainer.delete()
+            # Xóa Trainer nếu tồn tại (sử dụng truy vấn trực tiếp)
+            Trainer.objects.filter(user=self).delete()  # Sửa ở đây
 
 
 class Trainer(models.Model):
@@ -92,6 +90,10 @@ class Schedule(models.Model):
     def __str__(self):
         return f"{self.get_day_of_week_display()} - {self.get_time_block_display()}"
 
+    @property
+    def display_schedule(self):
+        return f"{self.get_day_of_week_display()} - {self.get_time_block_display()}"
+
 
 class Class(models.Model):
     CLASS_TYPES = (
@@ -105,7 +107,6 @@ class Class(models.Model):
     price = models.FloatField(default=0)
     class_type = models.CharField(max_length=10, choices=CLASS_TYPES)
     trainer = models.ForeignKey(Trainer, on_delete=models.SET_NULL, null=True, related_name='classes')
-    capacity = models.PositiveIntegerField()
     description = models.TextField()
 
     def __str__(self):
@@ -141,11 +142,20 @@ class Enrollment(models.Model):
 
     member = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
     class_enrolled = models.ForeignKey(Class, on_delete=models.CASCADE)
+    schedule_selected = models.ForeignKey(Schedule, on_delete=models.CASCADE)
     enrollment_date = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
+    payment_status = models.BooleanField(default=False)
+    completion_date = models.DateField(null=True, blank=True)
 
     class Meta:
-        unique_together = ('member', 'class_enrolled')
+        constraints = [
+            models.UniqueConstraint(
+                fields=['member', 'class_enrolled'],
+                condition=~Q(status='completed'),
+                name='unique_active_enrollment'
+            )
+        ]
 
     def __str__(self):
         return f"{self.member.username} - {self.class_enrolled.name}"
@@ -153,6 +163,7 @@ class Enrollment(models.Model):
 
 class Payment(models.Model):
     PAYMENT_METHODS = (
+        ('cash', 'Tiền mặt'),
         ('momo', 'Momo'),
         ('vnpay', 'VNPAY'),
         ('stripe', 'Stripe'),
@@ -164,7 +175,6 @@ class Payment(models.Model):
     payment_method = models.CharField(max_length=10, choices=PAYMENT_METHODS)
     transaction_id = models.CharField(max_length=100)
     enrollment = models.ForeignKey(Enrollment, on_delete=models.SET_NULL, null=True, blank=True)
-    membership = models.ForeignKey(Membership, on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
         return f"{self.user.username} - {self.amount} - {self.payment_method}"

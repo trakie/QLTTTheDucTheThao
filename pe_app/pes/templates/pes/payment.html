@@ -1,0 +1,63 @@
+{% extends 'pes/layout/base.html' %}
+
+{% load humanize %}
+
+{% block content %}
+<div class="container">
+    <h2 class="text-success mt-2">Thanh toán cho lớp học</h2>
+    <div class="row">
+        <div class="col-md-6">
+            <h3>{{ enrollment.class_enrolled.name }}</h3>
+            <p>Giá: {{ enrollment.class_enrolled.price|floatformat:0|intcomma }} VNĐ</p>
+            <p>Lịch học:
+                {{ enrollment.schedule_selected.get_day_of_week_display }} -
+                {{ enrollment.schedule_selected.get_time_block_display }}
+                {% if enrollment.schedule_selected.notes %}
+                    ({{ enrollment.schedule_selected.notes }})
+                {% endif %}
+            </p>
+            <p>Trạng thái: {{ enrollment.get_status_display }}</p>
+        </div>
+
+        <div class="col-md-6">
+            <form method="post">
+                {% csrf_token %}
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Chọn phương thức thanh toán</h5>
+
+                        {% if error %}
+                            <div class="alert alert-danger">{{ error }}</div>
+                        {% endif %}
+
+                        <select name="payment_method" class="form-select mb-3" required>
+                            <option value="">-- Chọn phương thức --</option>
+                            {% for method in payment_methods %}
+                                <option value="{{ method.0 }}">{{ method.1 }}</option>
+                            {% endfor %}
+                        </select>
+
+                        <div id="transaction-id-group" class="mb-3" style="display: none;">
+                            <label>Mã giao dịch</label>
+                            <input type="text" name="transaction_id"
+                                   class="form-control"
+                                   placeholder="Nhập mã giao dịch">
+                        </div>
+
+                        <button type="submit" class="btn btn-success w-100">
+                            Xác nhận thanh toán
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.querySelector('select[name="payment_method"]').addEventListener('change', function(e) {
+    const transactionGroup = document.getElementById('transaction-id-group');
+    transactionGroup.style.display = ['cash', ''].includes(e.target.value) ? 'none' : 'block';
+});
+</script>
+{% endblock %}

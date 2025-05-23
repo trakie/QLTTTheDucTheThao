@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin  # <-- Sử dụng UserAdmin thay vì ModelAdmin
 from django.contrib.auth.forms import UserChangeForm, UserCreationForm
-from .models import UserProfile, Class, Enrollment, Membership, Trainer, Schedule, ClassSchedule
+from .models import UserProfile, Class, Enrollment, Membership, Trainer, Schedule, ClassSchedule, Payment
 
 
 class CustomUserChangeForm(UserChangeForm):
@@ -62,3 +62,4 @@ admin.site.register(Membership)
 admin.site.register(Trainer)
 admin.site.register(Schedule)
 admin.site.register(ClassSchedule)
+admin.site.register(Payment)

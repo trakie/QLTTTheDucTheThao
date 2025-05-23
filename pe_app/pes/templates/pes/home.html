@@ -2,9 +2,7 @@
 
 {% block content %}
 
-<h1>Hello world!</h1>
-
-<h3 id="classes">Danh sách lớp</h3>
+<h3 id="classes" class="mt-2">Danh sách lớp</h3>
 <div class="d-flex flex-row flex-nowrap overflow-auto gap-3 py-3">
   {% for c in classes %}
     <div class="card" style="min-width: 250px; flex: 0 0 auto;">
@@ -34,7 +32,7 @@
       <div class="card-body">
         <h4 class="card-title">{{ t }}</h4>
         <p class="card-text">
-          Extra
+          {{ t.specialization }}
         </p>
         <a href="{% url 'trainer_detail' t.user.id %}" class="btn btn-primary btn-sm">Xem chi tiết</a>
       </div>

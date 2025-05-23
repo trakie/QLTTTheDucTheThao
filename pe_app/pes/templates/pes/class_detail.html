@@ -18,7 +18,6 @@
                 <div>
                     <h2>{{ class_obj.name }}</h2>
                 </div>
-                <p></p>
                 <h4 class="text-success">Giá: {{ class_obj.price|floatformat:0|intcomma }} VNĐ</h4>
                 <p>
                     <strong>Huấn luyện viên:</strong> {{ class_obj.trainer }}<br>
@@ -46,10 +45,10 @@
     </div>
     <div class="mt-2 row">
         {% if user.is_authenticated %}
-        <a href="#" class="btn btn-success btn-sm">Đăng ký lớp này</a>
+        <a href="{% url 'enroll' class_obj.id %}" class="btn btn-success btn-sm">Đăng ký lớp này</a>
         <a href="/" class="btn btn-primary btn-sm mt-1">Quay về trang chủ</a>
         {% else %}
-        <p class="text-danger">Vui lòng đến cơ sở của chúng tôi để đăng ký thành viên.</p>
+        <p class="text-danger text-center">Vui lòng đến cơ sở của chúng tôi để đăng ký thành viên.</p>
         <a href="/" class="btn btn-primary btn-sm mt-1">Quay về trang chủ</a>
         {% endif %}
     </div>
