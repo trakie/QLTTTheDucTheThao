@@ -1,9 +1,17 @@
 asgiref==3.8.1
+certifi==2025.4.26
 cffi==1.17.1
+charset-normalizer==3.4.2
+cloudinary==1.44.0
 cryptography==45.0.2
 Django==5.2.1
+django-cloudinary-storage==0.3.0
+idna==3.10
 pillow==11.2.1
 pycparser==2.22
 PyMySQL==1.1.1
+requests==2.32.3
+six==1.17.0
 sqlparse==0.5.3
 tzdata==2025.2
+urllib3==2.4.0

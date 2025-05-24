@@ -12,6 +12,10 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 
+import cloudinary
+import cloudinary.api
+import cloudinary.uploader
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -39,6 +43,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'pes.apps.PesConfig',
     'django.contrib.humanize',
+    'cloudinary',
+    'cloudinary_storage',
 ]
 
 MIDDLEWARE = [
@@ -99,6 +105,20 @@ DATABASES = {
         'HOST': '',
     }
 }
+
+# Cloudinary configuration
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': 'dciicd8kr',
+    'API_KEY': '729184597924335',
+    'API_SECRET': 'ZrP8FWMIGWKrQJc277QXTo6_jqY'
+}
+
+# Cấu hình Cloudinary SDK (quan trọng)
+cloudinary.config(
+    cloud_name=CLOUDINARY_STORAGE['CLOUD_NAME'],
+    api_key=CLOUDINARY_STORAGE['API_KEY'],
+    api_secret=CLOUDINARY_STORAGE['API_SECRET']
+)
 
 AUTH_USER_MODEL = 'pes.UserProfile'
 
