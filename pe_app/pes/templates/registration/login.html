@@ -1,11 +1,206 @@
 {% extends 'pes/layout/base.html' %}
 
 {% block content %}
-<h2>Log In</h2>
-<form method="post">
-  {% csrf_token %}
-  {{ form }}
-  <button type="submit">Log In</button>
-</form>
+<div class="login-container">
+    <div class="login-card">
+        <div class="login-header">
+            <h1>Chào mừng bạn! 👋</h1>
+            <p>Hãy đăng nhập để tiếp tục</p>
+        </div>
+
+        <form method="post" class="login-form">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label>Tài khoản</label>
+                {{ form.username }}
+            </div>
+
+            <div class="form-group">
+                <label>Mật khẩu</label>
+                <div class="password-toggle">
+                    {{ form.password }}
+                    <button type="button" id="togglePassword" class="password-toggle-button">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                            <circle cx="12" cy="12" r="3"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <button type="submit" class="login-button">
+                Đăng nhập
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20">
+                    <path fill="currentColor" d="M16.172 11l-5.364-5.364 1.414-1.414L20 12l-7.778 7.778-1.414-1.414L16.172 13H4v-2z"/>
+                </svg>
+            </button>
+
+            <div class="signup-link">
+                Chưa có tài khoản hoặc quên mật khẩu?
+              <br>
+              <a>Hãy đến trung tâm để được hỗ trợ!</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .login-container {
+        display: flex;
+        min-height: 100vh;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+    }
+
+    .login-card {
+        background: white;
+        padding: 2.5rem;
+        border-radius: 1.5rem;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        width: 100%;
+        max-width: 400px;
+        transition: transform 0.3s ease;
+    }
+
+    .login-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .login-header h1 {
+        color: #2d3436;
+        margin-bottom: 0.5rem;
+        font-size: 1.8rem;
+    }
+
+    .login-header p {
+        color: #636e72;
+        font-size: 0.9rem;
+    }
+
+    .form-group {
+        color: rgb(204, 229, 255);
+        margin-bottom: 1.5rem;
+    }
+
+    label {
+        display: block;
+        color: #2d3436;
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+
+    input {
+        width: 100%;
+        padding: 0.8rem;
+        border: 2px solid #e0e0e0;
+        border-radius: 0.5rem;
+        font-size: 1rem;
+        transition: border-color 0.3s ease;
+    }
+
+    input:focus {
+        outline: none;
+        border-color: rgb(204, 229, 255);
+        box-shadow: 0 0 0 3px rgba(108,92,231,0.1);
+    }
+
+    .login-button {
+        width: 100%;
+        padding: 1rem;
+        background: rgb(204, 229, 255);
+        color: black;
+        border: none;
+        border-radius: 0.5rem;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        transition: background 0.3s ease;
+    }
+
+    .login-button:hover {
+        background: rgb(204, 229, 255);
+    }
+
+    .signup-link {
+        text-align: center;
+        margin-top: 1.5rem;
+        color: #636e72;
+        font-size: 0.9rem;
+    }
+
+    .signup-link a {
+        color: rgb(204, 229, 255);
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .social-button img {
+        width: 24px;
+        height: 24px;
+    }
+
+    @media (max-width: 480px) {
+        .login-card {
+            padding: 1.5rem;
+        }
+    }
+
+        .password-toggle {
+        position: relative;
+    }
+
+    .password-toggle-button {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 0;
+    }
+
+    .password-toggle-button svg {
+        width: 20px;
+        height: 20px;
+        stroke: #666;
+    }
+
+    .password-toggle-button:hover svg {
+        stroke: #333;
+    }
+
+    #id_password {
+        padding-right: 2.5rem;
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const toggleButton = document.getElementById('togglePassword');
+    const passwordInput = document.getElementById('id_password');
+
+    if (toggleButton && passwordInput) {
+        toggleButton.addEventListener('click', function() {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+
+            // Đổi icon
+            const icon = this.querySelector('svg');
+            icon.innerHTML = type === 'password'
+                ? '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>'
+                : '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>';
+        });
+    }
+});
+</script>
 
 {% endblock %}
