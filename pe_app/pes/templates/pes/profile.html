@@ -1,25 +1,158 @@
 {% extends 'pes/layout/base.html' %}
 
 {% block content %}
-<h1 class="text-center text-danger mt-2">Trang cá nhân</h1>
+
+<h1 class="text-center text-danger mt-2 mb-4">Trang cá nhân</h1>
 <div class="row">
-    <div class="col-3" style="background-color: lightblue; border-radius: 20px; padding: 15px;">
-        <img src="{{ user.avatar.url }}" width="200" class="rounded-circle d-block w-100"/>
-        <h2 class="mt-1 text-center">{{ user.get_full_name }}</h2>
-        <p>
-            <h4>Thông tin cá nhân</h4>
-            &#128188 {{ user.role }}<br>
-            &#128231 {{ user.email }}<br>
-            &#128241 {{ user.phone }}
-        </p>
+    <div class="col-3">
+        <div style="background-color: lightblue; border-radius: 20px; padding: 20px;">
+            <img src="{{ user.avatar.url }}" width="200" class="rounded-circle d-block w-100"/>
+            <h2 class="mt-1 text-center">{{ user.get_full_name }}</h2>
+            <p>
+                <h4>Thông tin cá nhân</h4>
+                &#128188 {{ user.role }}<br>
+                &#128231 {{ user.email }}<br>
+                &#128241 {{ user.phone }}
+            </p>
+            <div class="row">
+                <a href="#" class="btn btn-success btn-sm mt-1">Cập nhật avatar</a>
+                <a href="/" class="btn btn-primary btn-sm mt-1">Quay về trang chủ</a>
+            </div>
+        </div>
     </div>
     <div class="col-8 ms-2">
+        <!-- Khối 1 - Các lớp đã hoàn thành -->
         <h4>Các lớp đã hoàn thành</h4>
+        <div class="border rounded p-3 mb-4 shadow-sm" style="background-color: #d4edda; border-color: #c3e6cb !important;">
+            <div class="scrollable-container">
+                <table class="table table-hover mb-0">
+                    <thead style="background-color: #28a745; color: white; position: sticky; top: 0;">
+                        <tr>
+                            <th>STT</th>
+                            <th>Lớp học</th>
+                            <th>Ngày hoàn thành</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for enrollment in completed_enrollments %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ enrollment.class_enrolled.name }}</td>
+                            <td>{{ enrollment.completion_date|date:"d/m/Y"|default:"Đang cập nhật" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="3" class="text-center">Chưa có lớp nào hoàn thành</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
 
+        <!-- Khối 2 - Các lớp đang tiến hành -->
         <h4>Các lớp đang tiến hành</h4>
+        <div class="border rounded p-3 mb-4 shadow-sm" style="background-color: #cce5ff; border-color: #b8daff !important;">
+            <div class="scrollable-container">
+                <table class="table table-hover mb-0">
+                    <thead style="background-color: #28a745; color: white; position: sticky; top: 0;">
+                        <tr>
+                            <th>STT</th>
+                            <th>Lớp học</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for enrollment in active_enrollments %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ enrollment.class_enrolled.name }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="2" class="text-center">Không có lớp đang tiến hành</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
 
+        <!-- Khối 3 - Các lớp cần thanh toán -->
         <h4>Các lớp cần thanh toán</h4>
+        <div class="border rounded p-3 shadow-sm" style="background-color: #f8d7da; border-color: #f5c6cb !important;">
+            <div class="scrollable-container">
+                <table class="table table-hover mb-0">
+                    <thead style="background-color: #28a745; color: white; position: sticky; top: 0;">
+                        <tr>
+                            <th>STT</th>
+                            <th>Lớp học</th>
+                            <th>Số tiền</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for enrollment in pending_payment_enrollments %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ enrollment.class_enrolled.name }}</td>
+                            <td>{{ enrollment.class_enrolled.price|floatformat:"0" }}đ</td>
+                            <td>
+                                <a href="{% url 'payment' enrollment.id %}" class="btn btn-sm btn-primary">Thanh toán</a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center">Không có lớp cần thanh toán</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </div>
+
+<style>
+    .table-hover tbody tr:hover {
+        background-color: rgba(255, 255, 255, 0.5) !important;
+    }
+    th {
+        border-top: none !important;
+    }
+</style>
+
+<style>
+    .scrollable-container {
+        max-height: 250px; /* Chiều cao tối đa */
+        overflow-y: auto;
+        position: relative;
+    }
+
+    /* Fix header khi cuộn */
+    thead tr {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+    }
+
+    /* Tùy chỉnh thanh cuộn */
+    .scrollable-container::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .scrollable-container::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 4px;
+    }
+
+    .scrollable-container::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 4px;
+    }
+
+    .scrollable-container::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
+</style>
 
 {% endblock %}

@@ -1,19 +1,37 @@
 import json
-
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
 from django.utils import timezone
 from django.views.decorators.http import require_http_methods
 from . import dao
 from .models import Class, Trainer, Enrollment, Payment, ClassSchedule, UserProfile
-from .forms import EnrollmentForm
 
 
 # Create your views here.
 def home(request):
+    # Lấy parameters từ URL
+    search_kw = request.GET.get('kw')
+    class_type = request.GET.get('class_type')
+
+    # Lấy queryset ban đầu
     classes = dao.get_all_classes()
     trainers = dao.get_all_trainers()
-    return render(request, 'pes/home.html', {'classes': classes, 'trainers': trainers})
+
+    # Filter theo tên
+    if search_kw:
+        classes = classes.filter(name__icontains=search_kw)
+
+    # Filter theo loại lớp
+    if class_type:
+        classes = classes.filter(class_type=class_type)
+
+    context = {
+        'classes': classes,
+        'trainers': trainers,
+        'class_types': Class.CLASS_TYPES,
+    }
+
+    return render(request, 'pes/home.html', context)
 
 
 def enroll(request, pk):
@@ -81,6 +99,14 @@ def trainer_detail(request, pk):
 def payment(request, enrollment_id):
     enrollment = get_object_or_404(Enrollment, id=enrollment_id)
 
+    # Kiểm tra trạng thái thanh toán trước
+    if enrollment.payment_status:
+        return render(request, 'pes/payment.html', {
+            'enrollment': enrollment,
+            'payment_completed': True,
+            'error': 'Đơn đăng ký này đã được thanh toán trước đó!'
+        })
+
     if request.method == 'POST':
         payment_method = request.POST.get('payment_method')
         transaction_id = request.POST.get('transaction_id', '').strip()
@@ -105,11 +131,12 @@ def payment(request, enrollment_id):
 
         # Update enrollment status
         enrollment.payment_status = True
+        enrollment.status = 'active'
         enrollment.save()
 
         return redirect('payment_success')
 
-    return render(request, 'pes/payment.html', {'enrollment': enrollment})
+    return render(request, 'pes/payment.html', {'enrollment': enrollment, 'payment_methods': Payment.PAYMENT_METHODS})
 
 
 def payment_success(request):
@@ -117,8 +144,25 @@ def payment_success(request):
 
 
 def profile(request, pk):
-    user_obj = get_object_or_404(UserProfile, pk=pk)
-    return render(request, 'pes/profile.html', {'user_obj': user_obj})
+    profile_user = get_object_or_404(UserProfile, pk=pk)
+
+    # Lấy tất cả enrollment của user và related data
+    enrollments = Enrollment.objects.filter(member=profile_user).select_related('class_enrolled')
+
+    # Phân loại enrollment
+    completed_enrollments = enrollments.filter(status='completed').order_by('-completion_date')
+    active_enrollments = enrollments.filter(status='active').order_by('-enrollment_date')
+    pending_payment_enrollments = enrollments.filter(status='pending', payment_status=False).order_by(
+        '-enrollment_date')
+
+    context = {
+        'profile_user': profile_user,
+        'completed_enrollments': completed_enrollments,
+        'active_enrollments': active_enrollments,
+        'pending_payment_enrollments': pending_payment_enrollments
+    }
+
+    return render(request, 'pes/profile.html', context)
 
 
 def get_class_members(request, class_id):
@@ -138,30 +182,41 @@ def get_class_members(request, class_id):
 def update_enrollment(request, enrollment_id):
     enrollment = get_object_or_404(Enrollment, id=enrollment_id)
 
-    # Kiểm tra quyền: Chỉ HLV của lớp mới được cập nhật
+    # Kiểm tra quyền HLV
     if request.user != enrollment.class_enrolled.trainer.user:
         return JsonResponse({'error': 'Unauthorized'}, status=403)
 
-        # Đọc dữ liệu JSON
     try:
+        # Đọc và validate dữ liệu
         data = json.loads(request.body)
         new_status = data.get('status')
+
+        # Kiểm tra trạng thái hợp lệ
+        if new_status not in dict(Enrollment.STATUS_CHOICES):
+            return JsonResponse({'error': 'Trạng thái không hợp lệ'}, status=400)
+
+        # Kiểm tra trạng thái không thay đổi
+        if enrollment.status == new_status:
+            return JsonResponse({'warning': 'Trạng thái không thay đổi'}, status=200)
+
+        # Xử lý ngày hoàn thành
+        if new_status == 'completed':
+            enrollment.completion_date = timezone.now()
+        elif enrollment.status == 'completed' and new_status != 'completed':
+            enrollment.completion_date = None
+
+        # Cập nhật và lưu
+        enrollment.status = new_status
+        enrollment.save()
+
+        return JsonResponse({
+            'success': True,
+            'new_status': enrollment.get_status_display(),
+            'completion_date': enrollment.completion_date.strftime(
+                "%d/%m/%Y %H:%M") if enrollment.completion_date else None
+        })
+
     except json.JSONDecodeError:
         return JsonResponse({'error': 'Invalid JSON'}, status=400)
-
-    if enrollment.status == new_status:
-        return JsonResponse({
-            'warning': 'Trạng thái không thay đổi'
-        }, status=200)
-
-    new_status = json.loads(request.body).get('status')
-    if new_status not in dict(Enrollment.STATUS_CHOICES).keys():
-        return JsonResponse({'error': 'Invalid status'}, status=400)
-
-    enrollment.status = new_status
-    enrollment.save()
-
-    return JsonResponse({
-        'success': True,
-        'new_status': enrollment.get_status_display()
-    })
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)

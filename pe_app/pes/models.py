@@ -23,7 +23,7 @@ class UserProfile(AbstractUser):
     avatar = CloudinaryField(
         'avatar',  # Tên resource trên Cloudinary
         folder="avatars",  # Thư mục lưu trữ
-        default='avatars/default'  # Public ID của ảnh mặc định
+        default='image/upload/v1748023865/default_uryokl.png'  # Public ID của ảnh mặc định
     )
     role = models.CharField(max_length=10, choices=ROLES, default='member')
     phone = models.CharField(max_length=15, null=True, blank=True)

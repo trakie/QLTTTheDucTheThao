@@ -20,6 +20,13 @@
         </div>
 
         <div class="col-md-6">
+            {% if enrollment.payment_status or payment_completed %}
+                <div class="alert alert-success">
+                    <h4>Đã thanh toán thành công!</h4>
+                    <p>Trạng thái hiện tại: {{ enrollment.get_status_display }}</p>
+                    <a href="{% url 'profile' user.id %}" class="btn btn-primary">Xem hồ sơ của tôi</a>
+                </div>
+            {% else %}
             <form method="post">
                 {% csrf_token %}
                 <div class="card">
@@ -50,6 +57,7 @@
                     </div>
                 </div>
             </form>
+            {% endif %}
         </div>
     </div>
 </div>

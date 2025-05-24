@@ -1,6 +1,6 @@
 <nav class="navbar navbar-expand-sm bg-dark navbar-dark">
   <div class="container-fluid">
-    <a class="navbar-brand" href="/">TTTDTT</a>
+    <a class="navbar-brand" href="/" style="color: rgb(204, 229, 255); font-weight: bold;">NUN SPORT</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#collapsibleNavbar">
       <span class="navbar-toggler-icon"></span>
     </button>
@@ -18,8 +18,16 @@
                   <li><a class="dropdown-item" href="/#trainers">Huấn luyện viên</a></li>
               </ul>
           </li>
+          {% if user.role == 'staff' %}
           <li class="nav-item">
-                <a class="nav-link" href="https://www.youtube.com/watch?v=3yaab2_EEHM">Bấm để có ice scream</a>
+                <a class="nav-link" href="#">Lịch học</a>
+          </li>
+          <li class="nav-item">
+                <a class="nav-link" href="#">Hóa đơn</a>
+          </li>
+          {% endif %}
+          <li class="nav-item">
+                <a class="nav-link" href="https://www.youtube.com/watch?v=3yaab2_EEHM">Bấm để có ice cream</a>
           </li>
       </ul>
 

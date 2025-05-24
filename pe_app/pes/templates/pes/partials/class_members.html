@@ -22,10 +22,12 @@
                             id="status_{{ enroll.id }}"
                             style="width: 150px;">
                         {% for value, display in enroll.STATUS_CHOICES %}
-                        <option value="{{ value }}"
-                            {% if value == enroll.status %}selected{% endif %}>
-                            {{ display }}
-                        </option>
+                            {% if value != 'pending' %} <!-- Thêm điều kiện lọc -->
+                                <option value="{{ value }}"
+                                    {% if value == enroll.status %}selected{% endif %}>
+                                    {{ display }}
+                                </option>
+                            {% endif %}
                         {% endfor %}
                     </select>
                 </td>
