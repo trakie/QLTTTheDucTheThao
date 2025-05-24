@@ -28,11 +28,11 @@
                     <li class="nav-item">
                         {% if user.role == 'trainer' %}
                         <a class="nav-link text-danger" href="{% url 'trainer_detail' user.id %}">
-                            <img src="/static/pes/images/{{ user.avatar }}" width="25" class="rounded-circle"/> Chào {{ user.username }}
+                            <img src="{{ user.avatar.url }}" width="25" class="rounded-circle"/> Chào {{ user.username }}
                         </a>
                         {% else %}
                         <a class="nav-link text-danger" href="{% url 'profile' user.id %}">
-                            <img src="/static/pes/images/{{ user.avatar }}" width="25" class="rounded-circle"/> Chào {{ user.username }}
+                            <img src="{{ user.avatar.url }}" width="25" class="rounded-circle"/> Chào {{ user.username }}
                         </a>
                         {% endif %}
                     </li>

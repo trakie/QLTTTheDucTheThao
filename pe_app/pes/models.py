@@ -3,13 +3,16 @@ from django.contrib.auth.models import AbstractUser
 from django.templatetags.static import static
 from django.utils import timezone
 from django.db.models import Q
+from cloudinary.models import CloudinaryField
+import cloudinary
+from cloudinary.exceptions import Error as CloudinaryError
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 
 class UserProfile(AbstractUser):
-    AVATAR_CHOICES = (
-        ('default', 'Mặc định'),
-        ('custom', 'Tùy chỉnh'),
-    )
     ROLES = (
         ('admin', 'Quản trị viên'),
         ('trainer', 'Huấn luyện viên'),
@@ -17,8 +20,11 @@ class UserProfile(AbstractUser):
         ('member', 'Hội viên'),
     )
 
-    avatar = models.ImageField(upload_to='avatars/', default='default.png')
-    avatar_type = models.CharField(max_length=10, choices=AVATAR_CHOICES, default='default')
+    avatar = CloudinaryField(
+        'avatar',  # Tên resource trên Cloudinary
+        folder="avatars",  # Thư mục lưu trữ
+        default='avatars/default'  # Public ID của ảnh mặc định
+    )
     role = models.CharField(max_length=10, choices=ROLES, default='member')
     phone = models.CharField(max_length=15, null=True, blank=True)
     address = models.TextField(null=True, blank=True)
@@ -27,6 +33,15 @@ class UserProfile(AbstractUser):
         return f"{self.username} - {self.get_role_display()}"
 
     def save(self, *args, **kwargs):
+        # Xử lý xóa ảnh cũ
+        old_avatar_public_id = None
+        old_role = None
+
+        if self.pk:
+            old_user = UserProfile.objects.get(pk=self.pk)
+            old_avatar_public_id = old_user.avatar.public_id if old_user.avatar else None
+            old_role = old_user.role
+
         # Lấy trạng thái role trước khi lưu (nếu user đã tồn tại)
         old_role = None
         if self.pk:
@@ -35,6 +50,14 @@ class UserProfile(AbstractUser):
 
         # Lưu user trước
         super().save(*args, **kwargs)
+
+        # Xóa ảnh cũ nếu khác ảnh mới và không phải ảnh mặc định
+        if old_avatar_public_id and old_avatar_public_id != self.avatar.public_id:
+            if old_avatar_public_id != 'avatars/default':
+                try:
+                    cloudinary.uploader.destroy(old_avatar_public_id)
+                except CloudinaryError as e:
+                    logger.error(f"Lỗi xóa ảnh Cloudinary: {e}")
 
         # Logic xử lý Trainer
         if self.role == 'trainer':

@@ -4,7 +4,7 @@
 <h1 class="text-center text-danger mt-2">Trang cá nhân</h1>
 <div class="row">
     <div class="col-3" style="background-color: lightblue; border-radius: 20px; padding: 15px;">
-        <img src="/static/pes/images/{{ user.avatar }}" width="200" class="rounded-circle d-block w-100"/>
+        <img src="{{ user.avatar.url }}" width="200" class="rounded-circle d-block w-100"/>
         <h2 class="mt-1 text-center">{{ user.get_full_name }}</h2>
         <p>
             <h4>Thông tin cá nhân</h4>

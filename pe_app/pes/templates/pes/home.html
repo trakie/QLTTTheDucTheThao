@@ -28,7 +28,7 @@
 <div class="d-flex flex-row flex-nowrap overflow-auto gap-3 py-3">
   {% for t in trainers %}
     <div class="card" style="min-width: 250px; flex: 0 0 auto;">
-      <img style="max-width: 250px" class="card-img-top img-hotel" src="static/pes/images/{{ t.user.avatar }}" alt="{{ t }}">
+      <img style="max-width: 250px; max-height: 250px" class="card-img-top img-hotel" src="{{ t.user.avatar.url }}" alt="{{ t }}">
       <div class="card-body">
         <h4 class="card-title">{{ t }}</h4>
         <p class="card-text">

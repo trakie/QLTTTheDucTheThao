@@ -24,7 +24,7 @@
         {% endif %}
     </div>
     <div class="col-3" style="background-color: lightblue; border-radius: 20px; padding: 15px;">
-            <img src="/static/pes/images/{{ trainer_obj.user.avatar }}" width="200" class="rounded-circle d-block w-100"/>
+            <img src="{{ trainer_obj.user.avatar.url }}" width="200" class="rounded-circle d-block w-100"/>
             <h2 class="mt-1 text-center">{{ trainer_obj.user.get_full_name }}</h2>
             <p>
                 <h4>Thông tin cá nhân</h4>
