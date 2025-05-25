@@ -3,8 +3,13 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
 from django.utils import timezone
 from django.views.decorators.http import require_http_methods
+from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.decorators import login_required
 from . import dao
 from .models import Class, Trainer, Enrollment, Payment, ClassSchedule, UserProfile
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 # Create your views here.
@@ -220,3 +225,41 @@ def update_enrollment(request, enrollment_id):
         return JsonResponse({'error': 'Invalid JSON'}, status=400)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+
+
+@login_required
+@csrf_exempt
+@require_http_methods(["POST"])
+def update_avatar(request):
+    try:
+        user = request.user
+
+        # 👇 Validate có file upload
+        if 'avatar' not in request.FILES:
+            return JsonResponse({
+                'success': False,
+                'error': 'Vui lòng chọn ảnh'
+            }, status=400)
+
+        # 👇 Lưu trữ thông tin ảnh cũ
+        old_avatar = user.avatar
+        old_public_id = old_avatar.public_id if old_avatar else None
+
+        # 👇 Cập nhật avatar mới
+        user.avatar = request.FILES['avatar']
+        user.save()
+
+        # 👇 Trả về response thành công
+        response_data = {
+            'success': True,
+            'new_url': user.avatar.url,
+            'public_id': user.avatar.public_id
+        }
+        return JsonResponse(response_data)
+
+    except Exception as e:
+        logger.error(f"Avatar update error: {str(e)}", exc_info=True)
+        return JsonResponse({
+            'success': False,
+            'error': 'Lỗi server: ' + str(e)
+        }, status=500)

@@ -6,18 +6,38 @@
 <div class="row">
     <div class="col-3">
         <div style="background-color: lightblue; border-radius: 20px; padding: 20px;">
-            <img src="{{ user.avatar.url }}" width="200" class="rounded-circle d-block w-100"/>
-            <h2 class="mt-1 text-center">{{ user.get_full_name }}</h2>
+            <img src="{{ profile_user.avatar.url }}" id="userAvatar" width="200" class="rounded-circle d-block w-100"/>
+            <h2 class="mt-1 text-center">{{ profile_user.get_full_name }}</h2>
             <p>
                 <h4>Thông tin cá nhân</h4>
-                &#128188 {{ user.role }}<br>
-                &#128231 {{ user.email }}<br>
-                &#128241 {{ user.phone }}
+                {% if profile_user.role == 'member' %}
+                &#128188 Hội viên<br>
+                {% elif profile_user.role == 'staff' %}
+                &#128188 Nhân viên lễ tân<br>
+                {% elif profile_user.role == 'trainer' %}
+                &#128188 Huấn luyện viên<br>
+                {% else %}
+                &#128188 Quản trị viên<br>
+                {% endif %}
+
+                {% if profile_user.email %}
+                &#128231 {{ profile_user.email }}<br>
+                {% else %}
+                &#128231 -<br>
+                {% endif %}
+
+                {% if profile_user.phone %}
+                &#128241 {{ profile_user.phone }}
+                {% else %}
+                &#128241 -
+                {% endif %}
             </p>
+            {% if user.id == profile_user.id %}
             <div class="row">
-                <a href="#" class="btn btn-success btn-sm mt-1">Cập nhật avatar</a>
+                <a href="#" class="btn btn-success btn-sm mt-1" id="updateAvatarBtn">Cập nhật avatar</a>
                 <a href="/" class="btn btn-primary btn-sm mt-1">Quay về trang chủ</a>
             </div>
+            {% endif %}
         </div>
     </div>
     <div class="col-8 ms-2">
@@ -112,6 +132,29 @@
     </div>
 </div>
 
+<!-- Modal Update Avatar -->
+<div class="modal fade" id="avatarModal" tabindex="-1" aria-labelledby="avatarModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="avatarModalLabel">Cập nhật ảnh đại diện</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="avatarForm" method="post" enctype="multipart/form-data">
+                <div class="modal-body">
+                    {% csrf_token %}
+                    <input type="file" name="avatar" class="form-control" accept="image/*" required>
+                    <div class="mt-2 text-muted small">Hỗ trợ định dạng: JPG, PNG, GIF</div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <style>
     .table-hover tbody tr:hover {
         background-color: rgba(255, 255, 255, 0.5) !important;
@@ -154,5 +197,58 @@
         background: #555;
     }
 </style>
+
+<!-- Thêm script xử lý AJAX -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const updateBtn = document.getElementById('updateAvatarBtn');
+    const avatarForm = document.getElementById('avatarForm');
+
+    // Mở modal
+    updateBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        new bootstrap.Modal(document.getElementById('avatarModal')).show();
+    });
+
+    // Xử lý submit form
+    avatarForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const submitBtn = this.querySelector('button[type="submit"]');
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = `
+            <span class="spinner-border spinner-border-sm"></span>
+            Đang tải lên...
+        `;
+
+        try {
+            const formData = new FormData(this);
+            const response = await fetch("{% url 'update_avatar' %}", {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                }
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) throw new Error(data.error || 'Lỗi không xác định');
+
+            if (data.success) {
+                document.getElementById('userAvatar').src = data.new_url + '?ts=' + Date.now();
+                bootstrap.Modal.getInstance(document.getElementById('avatarModal')).hide();
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Lỗi: ' + (error.message || 'Cập nhật thất bại'));
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = 'Lưu thay đổi';
+        }
+    });
+});
+</script>
+
 
 {% endblock %}

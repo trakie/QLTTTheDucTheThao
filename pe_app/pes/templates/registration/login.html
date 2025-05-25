@@ -8,6 +8,14 @@
             <p>Hãy đăng nhập để tiếp tục</p>
         </div>
 
+        {% if form.non_field_errors %}
+        <div class="error-message">
+            {% for error in form.non_field_errors %}
+                {{ error }}
+            {% endfor %}
+        </div>
+        {% endif %}
+
         <form method="post" class="login-form">
             {% csrf_token %}
 
@@ -180,6 +188,16 @@
 
     #id_password {
         padding-right: 2.5rem;
+    }
+
+    .error-message {
+        background-color: #fee;
+        color: #c33;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        border: 1px solid #f99;
+        margin-bottom: 1.5rem;
+        font-size: 0.9rem;
     }
 </style>
 
