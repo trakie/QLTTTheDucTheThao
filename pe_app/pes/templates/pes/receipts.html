@@ -3,6 +3,12 @@
 {% load humanize %}
 
 {% block content %}
+<!-- Nút quay lại -->
+    <a href="{% url 'home' %}" class="btn btn-outline-secondary mt-4">
+        <i class="fas fa-arrow-left"></i> Quay lại trang chủ
+    </a>
+
+<h1 class="text-center text-danger mt-2 mb-4">Thông tin hóa đơn</h1>
 <!-- Search box -->
 <div class="my-search-box border p-3 rounded mb-3 mt-3" style="background-color: #cce5ff;">
     <form method="get" action="{% url 'receipts' %}" class="d-flex flex-nowrap align-items-center gap-2">
@@ -32,8 +38,6 @@
         </div>
     </form>
 </div>
-
-<h1 class="text-center text-danger mt-2 mb-4">Thông tin hóa đơn</h1>
 {% if payments %}
 <div class="border rounded p-3 mb-4 shadow-sm" style="background-color: #cce5ff; border-color: #b8daff !important;">
     <div class="scrollable-container">

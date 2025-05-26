@@ -43,7 +43,7 @@
         {% endif %}
     </div>
     <div class="col-3">
-        <div style="background-color: lightblue; border-radius: 20px; padding: 20px;">
+        <div style="background-color: #cce5ff; border-radius: 20px; padding: 20px; border: solid lightblue 2px;">
             <img src="{{ trainer_obj.user.avatar.url }}" id="userAvatar" width="200" class="rounded-circle d-block w-100"/>
             <h2 class="mt-1 text-center">{{ trainer_obj.user.get_full_name }}</h2>
             <p>
@@ -70,12 +70,12 @@
                 &#128241 -
                 {% endif %}
             </p>
-            {% if user.id == trainer_obj.user.id %}
             <div class="row">
-                <a href="#" class="btn btn-success btn-sm mt-1" id="updateAvatarBtn">Cập nhật avatar</a>
-                <a href="/" class="btn btn-primary btn-sm mt-1">Quay về trang chủ</a>
+                {% if user.id == trainer_obj.user.id %}
+                <a href="#" class="btn btn-primary btn-sm mt-1" id="updateAvatarBtn">Cập nhật avatar</a>
+                {% endif %}
+                <a href="/" class="btn btn-secondary btn-sm mt-1">Quay về trang chủ</a>
             </div>
-            {% endif %}
         </div>
     </div>
 </div>

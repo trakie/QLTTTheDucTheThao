@@ -6,52 +6,70 @@
 <h1 class="mt-2 text-danger text-center">Chi tiết lớp {{ class_obj.name }}</h1>
 <div class="container mt-4">
         <div class="row">
-            <!-- Hình ảnh -->
-            <div class="col-md-6">
-                <div>
-                    <img src="{{ class_obj.image_url }}" alt="{{ class_obj.name }}" class="d-block w-100">
+            <div class="col-9">
+                <div class="row" style="background-color: rgb(255,250,205); border-radius: 20px; padding: 20px; border: solid gold 2px;">
+                    <h3 class="text-center text-danger mb-3">Thông tin lớp</h3>
+                    <!-- Hình ảnh -->
+                    <div class="col-6">
+                        <div>
+                            <img style="border-radius: 20px; border: solid gold 2px;" src="{{ class_obj.image_url }}" alt="{{ class_obj.name }}" class="d-block w-100">
+                        </div>
+                    </div>
+
+                    <!-- Thông tin chi tiết -->
+                    <div class="col-6">
+                        <div>
+                            <h2>{{ class_obj.name }}</h2>
+                        </div>
+                        <h4 class="text-success">Giá: {{ class_obj.price|floatformat:0|intcomma }} VNĐ</h4>
+                        <p>
+                            <strong>Huấn luyện viên:</strong> {{ class_obj.trainer }}<br>
+                            <strong>Khung thời gian:</strong>
+                            <ul>
+                              {% for cs in class_obj.schedules.all %}
+                                <li>{{ cs.schedule }}</li>
+                              {% empty %}
+                                <li>No schedule assigned</li>
+                              {% endfor %}
+                            </ul>
+                        </p>
+                    </div>
+                    <h4 class="mt-3 text-center"><span>Mô Tả Lớp</span></h4>
+                    <p>
+                        {{ class_obj.description }}
+                    </p>
+                    <div class="mt-4 row">
+                        {% if user.is_authenticated %}
+                        <a href="{% url 'enroll' class_obj.id %}" class="btn btn-success btn-sm">Đăng ký lớp này</a>
+                        {% else %}
+                        <p class="text-danger text-center">Vui lòng đến cơ sở của chúng tôi để đăng ký thành viên.</p>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
 
-            <!-- Thông tin chi tiết -->
-            <div class="col-md-6">
-                <div>
-                    <h2>{{ class_obj.name }}</h2>
+            <div class="col-3">
+                <div style="background-color: #cce5ff; border-radius: 20px; padding: 20px; border: solid lightblue 2px;">
+                    <h3 class="text-center text-danger">Thông tin HLV</h3>
+                    <img src="{{ class_obj.trainer.user.avatar.url }}" id="userAvatar" width="200" class="rounded-circle d-block w-100"/>
+                    <h2 class="mt-1 text-center">{{ class_obj.trainer.user.get_full_name }}</h2>
+                    <p>
+                        <ul>
+                            <li><strong>Chuyên ngành:</strong> {{ class_obj.trainer.specialization }}</li>
+                            <li><strong>Kinh nghiệm:</strong> {{ class_obj.trainer.experience }}</li>
+                        </ul>
+                    </p>
+                    <div class="row">
+                        <a href="{% url 'trainer_detail' class_obj.trainer.user.id %}" class="btn btn-primary btn-sm mt-1">Xem chi tiết</a>
+                    </div>
                 </div>
-                <h4 class="text-success">Giá: {{ class_obj.price|floatformat:0|intcomma }} VNĐ</h4>
-                <p>
-                    <strong>Huấn luyện viên:</strong> {{ class_obj.trainer }}<br>
-                    <strong>Khung thời gian:</strong>
-                    <ul>
-                      {% for cs in class_obj.schedules.all %}
-                        <li>{{ cs.schedule }}</li>
-                      {% empty %}
-                        <li>No schedule assigned</li>
-                      {% endfor %}
-                    </ul>
-                </p>
-                <h4 class="mt-2">Mô Tả Lớp</h4>
-                <p>
-                    {{ class_obj.description }}
-                </p>
             </div>
         </div>
 
-    <div class="mt-2 row">
-        <h4>Thông tin huấn luyện viên <a class="text-decoration-none" href="{% url 'trainer_detail' class_obj.trainer.user.id %}">{{ class_obj.trainer }}</a></h4>
-        <ul>
-            <li>Chuyên ngành: {{ class_obj.trainer.specialization }}</li>
-            <li>Kinh nghiệm: {{ class_obj.trainer.experience }}</li>
-        </ul>
-    </div>
-    <div class="mt-2 row">
-        {% if user.is_authenticated %}
-        <a href="{% url 'enroll' class_obj.id %}" class="btn btn-success btn-sm">Đăng ký lớp này</a>
-        <a href="/" class="btn btn-primary btn-sm mt-1">Quay về trang chủ</a>
-        {% else %}
-        <p class="text-danger text-center">Vui lòng đến cơ sở của chúng tôi để đăng ký thành viên.</p>
-        <a href="/" class="btn btn-primary btn-sm mt-1">Quay về trang chủ</a>
-        {% endif %}
-    </div>
+
+    <!-- Nút quay lại -->
+    <a href="{% url 'home' %}" class="btn btn-outline-secondary mt-4">
+        <i class="fas fa-arrow-left"></i> Quay lại trang chủ
+    </a>
 </div>
 {% endblock %}

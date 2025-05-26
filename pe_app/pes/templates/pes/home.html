@@ -1,8 +1,10 @@
 {% extends 'pes/layout/base.html' %}
 
 {% block content %}
+<!-- Lớp -->
+<h3 id="classes" class="mt-3">Danh sách lớp</h3>
 <!-- Search box -->
-<div class="my-search-box border p-3 rounded mb-3 mt-3" style="background-color: #cce5ff;">
+<div class="my-search-box border p-3 rounded mt-3" style="background-color: #cce5ff;">
     <form method="get" action="{% url 'home' %}" class="d-flex flex-nowrap align-items-center gap-2">
         <!-- Ô tìm kiếm -->
         <input class="form-control"
@@ -37,8 +39,6 @@
     </form>
 </div>
 
-<!-- Lớp -->
-<h3 id="classes" class="mt-3">Danh sách lớp</h3>
 {% if classes %}
 <div class="d-flex flex-row flex-nowrap overflow-auto gap-3 py-3">
     {% for c in classes %}
