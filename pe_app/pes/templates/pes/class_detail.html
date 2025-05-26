@@ -38,7 +38,7 @@
         </div>
 
     <div class="mt-2 row">
-        <h4>Thông tin huấn luyện viên <a href="{% url 'trainer_detail' class_obj.trainer.user.id %}">{{ class_obj.trainer }}</a></h4>
+        <h4>Thông tin huấn luyện viên <a class="text-decoration-none" href="{% url 'trainer_detail' class_obj.trainer.user.id %}">{{ class_obj.trainer }}</a></h4>
         <ul>
             <li>Chuyên ngành: {{ class_obj.trainer.specialization }}</li>
             <li>Kinh nghiệm: {{ class_obj.trainer.experience }}</li>

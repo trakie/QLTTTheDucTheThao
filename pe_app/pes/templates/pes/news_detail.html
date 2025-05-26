@@ -53,7 +53,7 @@
 <!-- Thêm phần quản lý -->
 {% if user.role == 'admin' or user.role == 'trainer' and post.author == user %}
 <div class="mt-4 border-top pt-3">
-    <div class="btn-group">
+    <div>
         <a href="{% url 'post_edit' post.pk %}" class="btn btn-warning">
             <i class="fas fa-edit"></i> Sửa bài
         </a>

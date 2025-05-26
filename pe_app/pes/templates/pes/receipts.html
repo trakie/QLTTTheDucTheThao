@@ -16,7 +16,7 @@
 
         <input class="form-control"
                type="text"
-               placeholder="Tìm theo lớp..."
+               placeholder="Tìm theo tên lớp..."
                name="class_kw"
                value="{{ request.GET.class_kw }}"
                style="min-width: 200px;">
@@ -50,8 +50,8 @@
                 {% for p in payments %}
                 <tr>
                     <td class="text-center align-middle">{{ forloop.counter }}</td>
-                    <td class="align-middle"><a href="{% url 'profile' p.user.id %}">{{ p.user.get_full_name }}</a></td>
-                    <td class="align-middle"><a href="{% url 'class_detail' p.enrollment.class_enrolled.id %}">{{ p.enrollment.class_enrolled.name }}</a></td>
+                    <td class="align-middle"><a href="{% url 'profile' p.user.id %}" class="text-decoration-none">{{ p.user.get_full_name }}</a></td>
+                    <td class="align-middle"><a href="{% url 'class_detail' p.enrollment.class_enrolled.id %}" class="text-decoration-none">{{ p.enrollment.class_enrolled.name }}</a></td>
                     <td class="text-end align-middle">
                       {{ p.amount|floatformat:0|intcomma }} VNĐ
                     </td>

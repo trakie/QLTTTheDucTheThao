@@ -11,6 +11,8 @@ from django.core.paginator import Paginator
 from . import dao
 from .models import Class, Trainer, Enrollment, Payment, ClassSchedule, UserProfile, Post
 import logging
+from .decorators import admin_trainer_required, admin_staff_required
+from .forms import PostForm
 
 logger = logging.getLogger(__name__)
 
@@ -42,6 +44,7 @@ def home(request):
     return render(request, 'pes/home.html', context)
 
 
+@login_required
 def enroll(request, pk):
     class_obj = get_object_or_404(Class, pk=pk)
 
@@ -104,6 +107,7 @@ def trainer_detail(request, pk):
     return render(request, 'pes/trainer_detail.html', {'trainer_obj': trainer_obj})
 
 
+@login_required
 def payment(request, enrollment_id):
     enrollment = get_object_or_404(Enrollment, id=enrollment_id)
 
@@ -147,10 +151,12 @@ def payment(request, enrollment_id):
     return render(request, 'pes/payment.html', {'enrollment': enrollment, 'payment_methods': Payment.PAYMENT_METHODS})
 
 
+@login_required
 def payment_success(request):
     return render(request, 'pes/payment_success.html')
 
 
+@login_required
 def profile(request, pk):
     profile_user = get_object_or_404(UserProfile, pk=pk)
 
@@ -186,6 +192,7 @@ def get_class_members(request, class_id):
     })
 
 
+@login_required
 @require_http_methods(["POST"])
 def update_enrollment(request, enrollment_id):
     enrollment = get_object_or_404(Enrollment, id=enrollment_id)
@@ -264,6 +271,8 @@ def update_avatar(request):
         }, status=500)
 
 
+@login_required
+@admin_staff_required
 def receipts(request):
     search_kw = request.GET.get('kw')
     class_kw = request.GET.get('class_kw')
@@ -287,6 +296,8 @@ def receipts(request):
     return render(request, 'pes/receipts.html', context={'payments': payments})
 
 
+@login_required
+@admin_staff_required
 def class_schedule(request):
     # Lấy parameters từ URL
     search_kw = request.GET.get('kw')
@@ -324,9 +335,25 @@ def class_schedule(request):
     return render(request, 'pes/class_schedule.html', context)
 
 
+@login_required
 def news(request):
+    # Lấy parameters từ URL
+    search_kw = request.GET.get('kw')
+    news_type = request.GET.get('news_type')
+
     # Lấy tất cả bài viết và sắp xếp theo thời gian tạo
     post_list = Post.objects.all()
+
+    # Filter theo nội dung
+    if search_kw:
+        post_list = post_list.filter(
+            Q(title__icontains=search_kw) |
+            Q(content__icontains=search_kw)
+        )
+
+    # Filter theo loại tin
+    if news_type:
+        post_list = post_list.filter(category=news_type)
 
     # Phân trang với 5 bài viết mỗi trang
     paginator = Paginator(post_list, 5)
@@ -339,14 +366,10 @@ def news(request):
     })
 
 
+@login_required
 def news_detail(request, pk):
     post = get_object_or_404(Post.objects.select_related('author'), pk=pk)
     return render(request, 'pes/news_detail.html', {'post': post})
-
-
-from django.urls import reverse
-from .decorators import admin_trainer_required
-from .forms import PostForm
 
 
 @login_required
