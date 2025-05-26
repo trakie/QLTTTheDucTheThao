@@ -5,8 +5,9 @@ from django.utils import timezone
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
 from . import dao
-from .models import Class, Trainer, Enrollment, Payment, ClassSchedule, UserProfile
+from .models import Class, Trainer, Enrollment, Payment, ClassSchedule, UserProfile, Post
 import logging
 
 logger = logging.getLogger(__name__)
@@ -263,3 +264,21 @@ def update_avatar(request):
             'success': False,
             'error': 'Lỗi server: ' + str(e)
         }, status=500)
+
+def news(request):
+    # Lấy tất cả bài viết và sắp xếp theo thời gian tạo
+    post_list = Post.objects.all()
+
+    # Phân trang với 5 bài viết mỗi trang
+    paginator = Paginator(post_list, 5)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, 'pes/news.html', {
+        'page_obj': page_obj,
+        'categories': Post.CATEGORIES  # Thêm categories vào context nếu cần filter
+    })
+
+def news_detail(request, pk):
+    post = get_object_or_404(Post.objects.select_related('author'), pk=pk)
+    return render(request, 'pes/news_detail.html', {'post': post})
