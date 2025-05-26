@@ -13,8 +13,7 @@
                     <a class="nav-link" href="{% url 'news' %}">Tin tức - Sự kiện</a>
                 </li>
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
-                       data-bs-toggle="dropdown" aria-expanded="false">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         Trung tâm
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
@@ -24,10 +23,10 @@
                 </li>
                 {% if user.role == 'staff' %}
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Lịch học</a>
+                      <a class="nav-link" href="{% url 'class_schedule' %}">Lịch học</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Hóa đơn</a>
+                      <a class="nav-link" href="{% url 'receipts' %}">Hóa đơn</a>
                 </li>
                 {% endif %}
             </ul>

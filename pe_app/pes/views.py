@@ -5,6 +5,7 @@ from django.utils import timezone
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
+from django.db.models import Prefetch
 from django.core.paginator import Paginator
 from . import dao
 from .models import Class, Trainer, Enrollment, Payment, ClassSchedule, UserProfile, Post
@@ -235,22 +236,18 @@ def update_avatar(request):
     try:
         user = request.user
 
-        # 👇 Validate có file upload
         if 'avatar' not in request.FILES:
             return JsonResponse({
                 'success': False,
                 'error': 'Vui lòng chọn ảnh'
             }, status=400)
 
-        # 👇 Lưu trữ thông tin ảnh cũ
         old_avatar = user.avatar
         old_public_id = old_avatar.public_id if old_avatar else None
 
-        # 👇 Cập nhật avatar mới
         user.avatar = request.FILES['avatar']
         user.save()
 
-        # 👇 Trả về response thành công
         response_data = {
             'success': True,
             'new_url': user.avatar.url,
@@ -264,6 +261,27 @@ def update_avatar(request):
             'success': False,
             'error': 'Lỗi server: ' + str(e)
         }, status=500)
+
+
+def receipts(request):
+    payments = dao.get_all_payment()
+
+    return render(request, 'pes/receipts.html', context={'payments': payments})
+
+
+def class_schedule(request):
+    # Lấy danh sách ClassSchedule đã sắp xếp và kèm thông tin Schedule
+    ordered_schedules = ClassSchedule.objects.select_related('schedule').order_by(
+        'schedule__day_of_week',
+        'schedule__time_block'
+    )
+
+    # Lấy tất cả lớp học kèm thông tin HLV và lịch đã sắp xếp
+    classes = Class.objects.select_related('trainer').prefetch_related(
+        Prefetch('schedules', queryset=ordered_schedules)
+    ).all()
+
+    return render(request, 'pes/class_schedule.html', {'classes': classes})
 
 def news(request):
     # Lấy tất cả bài viết và sắp xếp theo thời gian tạo

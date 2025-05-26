@@ -1,4 +1,4 @@
-from .models import Class, ClassSchedule, Trainer
+from .models import Class, ClassSchedule, Trainer, Payment
 from django.db.models import Prefetch
 
 
@@ -12,4 +12,8 @@ def get_all_classes():
 
 
 def get_all_trainers():
-    return Trainer.objects.select_related('user').prefetch_related('classes').all();
+    return Trainer.objects.select_related('user').prefetch_related('classes').all()
+
+
+def get_all_payment():
+    return Payment.objects.select_related('user').prefetch_related('enrollment').all()
