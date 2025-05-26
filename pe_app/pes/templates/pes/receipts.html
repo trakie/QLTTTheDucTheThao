@@ -3,7 +3,38 @@
 {% load humanize %}
 
 {% block content %}
+<!-- Search box -->
+<div class="my-search-box border p-3 rounded mb-3 mt-3" style="background-color: #cce5ff;">
+    <form method="get" action="{% url 'receipts' %}" class="d-flex flex-nowrap align-items-center gap-2">
+        <!-- Ô tìm kiếm -->
+        <input class="form-control"
+               type="text"
+               placeholder="Tìm theo tên học viên..."
+               name="kw"
+               value="{{ request.GET.kw }}"
+               style="min-width: 200px;">
+
+        <input class="form-control"
+               type="text"
+               placeholder="Tìm theo tên lớp..."
+               name="class_kw"
+               value="{{ request.GET.class_kw }}"
+               style="min-width: 200px;">
+
+        <!-- Nhóm nút -->
+        <div class="d-flex gap-2 nowrap">
+            <button class="btn btn-primary" type="submit">
+                <i class="fas fa-search"></i>
+            </button>
+            <a href="{% url 'receipts' %}" class="btn btn-secondary">
+                <i class="fas fa-sync-alt"></i>
+            </a>
+        </div>
+    </form>
+</div>
+
 <h1 class="text-center text-danger mt-2 mb-4">Thông tin hóa đơn</h1>
+{% if payments %}
 <div class="border rounded p-3 mb-4 shadow-sm" style="background-color: #cce5ff; border-color: #b8daff !important;">
     <div class="scrollable-container">
         <table class="table table-hover mb-0">
@@ -19,8 +50,8 @@
                 {% for p in payments %}
                 <tr>
                     <td class="text-center align-middle">{{ forloop.counter }}</td>
-                    <td class="align-middle">{{ p.user.get_full_name }}</td>
-                    <td class="align-middle">{{ p.enrollment.class_enrolled.name }}</td>
+                    <td class="align-middle"><a href="{% url 'profile' p.user.id %}" class="text-decoration-none">{{ p.user.get_full_name }}</a></td>
+                    <td class="align-middle"><a href="{% url 'class_detail' p.enrollment.class_enrolled.id %}" class="text-decoration-none">{{ p.enrollment.class_enrolled.name }}</a></td>
                     <td class="text-end align-middle">
                       {{ p.amount|floatformat:0|intcomma }} VNĐ
                     </td>
@@ -38,6 +69,9 @@
         </table>
     </div>
 </div>
+{% else %}
+<div class="alert alert-primary">Không có hóa đơn.</div>
+{% endif %}
 <caption class="text-muted small p-2">Danh sách học phí - Cập nhật {% now "d/m/Y" %}</caption>
 
 <style>

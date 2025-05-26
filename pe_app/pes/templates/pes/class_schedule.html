@@ -3,14 +3,50 @@
 {% load humanize %}
 
 {% block content %}
+<!-- Search box -->
+<div class="my-search-box border p-3 rounded mb-3 mt-3" style="background-color: #cce5ff;">
+    <form method="get" action="{% url 'class_schedule' %}" class="d-flex flex-nowrap align-items-center gap-2">
+        <!-- Ô tìm kiếm -->
+        <input class="form-control"
+               type="text"
+               placeholder="Tìm theo tên lớp..."
+               name="kw"
+               value="{{ request.GET.kw }}"
+               style="min-width: 200px;">
+
+        <!-- Dropdown loại lớp -->
+        <select class="form-select"
+                name="class_type"
+                style="min-width: 180px;">
+            <option value="" disabled selected>Chọn loại lớp</option>
+            {% for type in class_types %}
+                <option value="{{ type.0 }}"
+                        {% if request.GET.class_type == type.0 %}selected{% endif %}>
+                    {{ type.1 }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <!-- Nhóm nút -->
+        <div class="d-flex gap-2 nowrap">
+            <button class="btn btn-primary" type="submit">
+                <i class="fas fa-search"></i>
+            </button>
+            <a href="{% url 'class_schedule' %}" class="btn btn-secondary">
+                <i class="fas fa-sync-alt"></i>
+            </a>
+        </div>
+    </form>
+</div>
+
 <div class="container">
     <h1 class="text-center text-danger mt-2 mb-4">Thông tin lịch học</h1>
 
-    {% for class_obj in classes %}
+    {% for class_obj in page_obj %}
     <div class="class-card row">
         <!-- Hiển thị ảnh lớp -->
         <div class="col-6">
-            <h2><a href="{% url 'class_detail' class_obj.id %}">{{ class_obj.name }}</a></h2>
+            <h2><a href="{% url 'class_detail' class_obj.id %}" class="text-decoration-none">{{ class_obj.name }}</a></h2>
             <p class="price">Giá: {{ class_obj.price|floatformat:0|intcomma }} VNĐ</p>
             <!-- Hiển thị thông tin HLV -->
             {% if class_obj.trainer %}
@@ -32,9 +68,48 @@
         </div>
     </div>
     {% empty %}
-        <p>Hiện không có lớp học nào.</p>
+        <div class="alert alert-primary">Không tìm thấy lớp tương ứng.</div>
     {% endfor %}
 </div>
+
+<!-- Phân trang -->
+    {% if page_obj.paginator.num_pages > 1 %}
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page=1" aria-label="First">
+                    <span aria-hidden="true">&laquo;&laquo;</span>
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+            {% endif %}
+
+            <li class="page-item disabled">
+                <span class="page-link">
+                    Trang {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+                </span>
+            </li>
+
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}" aria-label="Last">
+                    <span aria-hidden="true">&raquo;&raquo;</span>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
 
 <style>
         .class-card {
