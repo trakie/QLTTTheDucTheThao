@@ -5,7 +5,8 @@ from django.utils import timezone
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
-from django.db.models import Prefetch
+from django.db.models import Prefetch, Q, Value
+from django.db.models.functions import Concat
 from django.core.paginator import Paginator
 from . import dao
 from .models import Class, Trainer, Enrollment, Payment, ClassSchedule, UserProfile, Post
@@ -264,12 +265,33 @@ def update_avatar(request):
 
 
 def receipts(request):
+    search_kw = request.GET.get('kw')
+    class_kw = request.GET.get('class_kw')
+
     payments = dao.get_all_payment()
+
+    if search_kw:
+        payments = payments.annotate(  # Thêm trường ảo full_name
+            full_name=Concat('user__first_name', Value(' '), 'user__last_name')
+        ).filter(
+            Q(user__username__icontains=search_kw) |
+            Q(user__email__icontains=search_kw) |
+            Q(full_name__icontains=search_kw) |
+            Q(user__first_name__icontains=search_kw) |
+            Q(user__last_name__icontains=search_kw)
+        )
+
+    if class_kw:
+        payments = payments.filter(enrollment__class_enrolled__name__icontains=class_kw)
 
     return render(request, 'pes/receipts.html', context={'payments': payments})
 
 
 def class_schedule(request):
+    # Lấy parameters từ URL
+    search_kw = request.GET.get('kw')
+    class_type = request.GET.get('class_type')
+
     # Lấy danh sách ClassSchedule đã sắp xếp và kèm thông tin Schedule
     ordered_schedules = ClassSchedule.objects.select_related('schedule').order_by(
         'schedule__day_of_week',
@@ -281,7 +303,26 @@ def class_schedule(request):
         Prefetch('schedules', queryset=ordered_schedules)
     ).all()
 
-    return render(request, 'pes/class_schedule.html', {'classes': classes})
+    # Filter theo tên
+    if search_kw:
+        classes = classes.filter(name__icontains=search_kw)
+
+    # Filter theo loại lớp
+    if class_type:
+        classes = classes.filter(class_type=class_type)
+
+    paginator = Paginator(classes, 5)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'classes': classes,
+        'class_types': Class.CLASS_TYPES,
+        'page_obj': page_obj,
+    }
+
+    return render(request, 'pes/class_schedule.html', context)
+
 
 def news(request):
     # Lấy tất cả bài viết và sắp xếp theo thời gian tạo
@@ -296,6 +337,7 @@ def news(request):
         'page_obj': page_obj,
         'categories': Post.CATEGORIES  # Thêm categories vào context nếu cần filter
     })
+
 
 def news_detail(request, pk):
     post = get_object_or_404(Post.objects.select_related('author'), pk=pk)
