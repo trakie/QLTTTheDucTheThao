@@ -3,9 +3,11 @@ certifi==2025.4.26
 cffi==1.17.1
 charset-normalizer==3.4.2
 cloudinary==1.44.0
+crispy-bootstrap5==2025.4
 cryptography==45.0.2
 Django==5.2.1
 django-cloudinary-storage==0.3.0
+django-crispy-forms==2.4
 idna==3.10
 pillow==11.2.1
 pycparser==2.22
