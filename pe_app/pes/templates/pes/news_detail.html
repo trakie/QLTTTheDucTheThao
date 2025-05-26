@@ -50,6 +50,24 @@
     </div>
 </div>
 
+<!-- Thêm phần quản lý -->
+{% if user.role == 'admin' or user.role == 'trainer' and post.author == user %}
+<div class="mt-4 border-top pt-3">
+    <div class="btn-group">
+        <a href="{% url 'post_edit' post.pk %}" class="btn btn-warning">
+            <i class="fas fa-edit"></i> Sửa bài
+        </a>
+        <form method="post" action="{% url 'post_delete' post.pk %}" class="d-inline">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger"
+                    onclick="return confirm('Bạn chắc chắn muốn xóa bài viết này?')">
+                <i class="fas fa-trash"></i> Xóa
+            </button>
+        </form>
+    </div>
+</div>
+{% endif %}
+
 <style>
     .article-content {
         font-size: 1.1rem;

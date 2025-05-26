@@ -3,6 +3,14 @@
 <div class="container mt-4">
     <h1 class="mt-2 mb-4 text-danger text-center">Tin tức & Sự kiện</h1>
 
+    {% if user.role in 'admin' or 'trainer' %}
+    <div class="mb-4">
+        <a href="{% url 'post_create' %}" class="btn btn-success">
+            <i class="fas fa-plus"></i> Tạo bài viết mới
+        </a>
+    </div>
+    {% endif %}
+
     <!-- Danh sách bài viết -->
     {% for post in page_obj %}
     <div class="card mb-4">
