@@ -1,6 +1,6 @@
 import json
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseForbidden
 from django.utils import timezone
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
@@ -300,3 +300,65 @@ def news(request):
 def news_detail(request, pk):
     post = get_object_or_404(Post.objects.select_related('author'), pk=pk)
     return render(request, 'pes/news_detail.html', {'post': post})
+
+
+from django.urls import reverse
+from .decorators import admin_trainer_required
+from .forms import PostForm
+
+
+@login_required
+@admin_trainer_required
+@require_http_methods(['GET', 'POST'])
+def post_create(request):
+    if request.method == 'POST':
+        form = PostForm(request.POST)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.author = request.user
+            post.save()
+            return redirect('news_detail', pk=post.pk)
+    else:
+        form = PostForm()
+
+    return render(request, 'pes/post_form.html', {
+        'form': form,
+        'title': 'Tạo bài viết mới'
+    })
+
+
+@login_required
+@admin_trainer_required
+@require_http_methods(['GET', 'POST'])
+def post_edit(request, pk):
+    post = get_object_or_404(Post, pk=pk)
+
+    if request.user.role == 'trainer' and post.author != request.user:
+        return HttpResponseForbidden("Bạn không có quyền chỉnh sửa bài viết này")
+
+    if request.method == 'POST':
+        form = PostForm(request.POST, instance=post)
+        if form.is_valid():
+            form.save()
+            return redirect('news_detail', pk=post.pk)
+    else:
+        form = PostForm(instance=post)
+
+    return render(request, 'pes/post_form.html', {
+        'form': form,
+        'title': 'Chỉnh sửa bài viết'
+    })
+
+
+@login_required
+@admin_trainer_required
+@require_http_methods(['POST'])
+def post_delete(request, pk):
+    post = get_object_or_404(Post, pk=pk)
+
+    # Kiểm tra quyền trainer
+    if request.user.role == 'trainer' and post.author != request.user:
+        return HttpResponseForbidden("Bạn không có quyền xóa bài viết này")
+
+    post.delete()
+    return redirect('news')
