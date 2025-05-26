@@ -23,4 +23,7 @@ urlpatterns = [
     path('class-schedule/', views.class_schedule, name='class_schedule'),
     path('news/', views.news, name='news'),
     path('news/<int:pk>/', views.news_detail, name='news_detail'),
+    path('news/create/', views.post_create, name='post_create'),
+    path('news/<int:pk>/edit/', views.post_edit, name='post_edit'),
+    path('news/<int:pk>/delete/', views.post_delete, name='post_delete'),
 ]
