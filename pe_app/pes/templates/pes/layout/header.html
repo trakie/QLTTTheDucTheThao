@@ -1,58 +1,112 @@
-<nav class="navbar navbar-expand-sm bg-dark navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="/" style="color: rgb(204, 229, 255); font-weight: bold;">NUN SPORT</a>
+<nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom shadow-sm">
+    <div class="container-fluid px-4">
+        <!-- Brand Logo với gradient hiện đại -->
+        <a class="navbar-brand fw-bold fs-3 fas fa-dumbbell me-2" href="/" style="background: linear-gradient(45deg, #2563eb, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+            NUN SPORT
+        </a>
+
+        <!-- Mobile Toggler -->
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#collapsibleNavbar">
             <span class="navbar-toggler-icon"></span>
         </button>
+
         <div class="collapse navbar-collapse" id="collapsibleNavbar">
-            <ul class="navbar-nav me-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="/">Trang chủ</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'news' %}">Tin tức - Sự kiện</a>
-                </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        Trung tâm
+            <!-- Main Navigation -->
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item mx-2">
+                    <a class="nav-link text-dark py-2 px-3 rounded-3" href="/">
+                        <i class="fas fa-home me-2"></i>Trang chủ
                     </a>
-                    <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <li><a class="dropdown-item" href="/#classes">Lớp</a></li>
-                        <li><a class="dropdown-item" href="/#trainers">Huấn luyện viên</a></li>
+                </li>
+
+                <li class="nav-item mx-2">
+                    <a class="nav-link text-dark py-2 px-3 rounded-3" href="{% url 'news' %}">
+                        <i class="far fa-newspaper me-2"></i>Tin tức
+                    </a>
+                </li>
+
+                <!-- Dropdown với hover effect -->
+                <li class="nav-item dropdown mx-2">
+                    <a class="nav-link dropdown-toggle text-dark py-2 px-3 rounded-3 d-flex align-items-center"
+                       href="#"
+                       data-bs-toggle="dropdown"
+                       aria-expanded="false">
+                        <i class="fas fa-dumbbell me-2"></i>Trung tâm
+                    </a>
+                    <ul class="dropdown-menu border-0 shadow-lg p-2" style="min-width: 220px;">
+                        <li>
+                            <a class="dropdown-item rounded-3 p-3" href="/#classes">
+                                <i class="fas fa-users me-2"></i>Lớp học
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item rounded-3 p-3" href="/#trainers">
+                                <i class="fas fa-chalkboard-user me-2"></i>Huấn luyện viên
+                            </a>
+                        </li>
                     </ul>
                 </li>
+
+                <!-- Staff Links -->
                 {% if user.role == 'staff' or user.role == 'admin' %}
-                <li class="nav-item">
-                      <a class="nav-link" href="{% url 'class_schedule' %}">Lịch học</a>
+                <li class="nav-item mx-2">
+                    <a class="nav-link text-dark py-2 px-3 rounded-3" href="{% url 'class_schedule' %}">
+                        <i class="far fa-calendar-alt me-2"></i>Lịch học
+                    </a>
                 </li>
-                <li class="nav-item">
-                      <a class="nav-link" href="{% url 'receipts' %}">Hóa đơn</a>
+                <li class="nav-item mx-2">
+                    <a class="nav-link text-dark py-2 px-3 rounded-3" href="{% url 'receipts' %}">
+                        <i class="fas fa-receipt me-2"></i>Hóa đơn
+                    </a>
                 </li>
                 {% endif %}
             </ul>
 
-            <ul class="navbar-nav ms-auto">
+            <!-- Right Navigation -->
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                 {% if user.is_authenticated %}
-                <li class="nav-item">
-                    {% if user.role == 'trainer' %}
-                    <a class="nav-link text-danger" href="{% url 'trainer_detail' user.id %}">
-                        <img src="{{ user.avatar.url }}" width="25" class="rounded-circle"/> Chào {{ user.username }}
+                <!-- User Profile -->
+                <li class="nav-item dropdown mx-2">
+                    <a class="nav-link dropdown-toggle d-flex align-items-center py-2 px-3 rounded-3"
+                       href="#"
+                       role="button"
+                       data-bs-toggle="dropdown">
+                        <img src="{{ user.avatar.url }}"
+                             width="32"
+                             height="32"
+                             class="rounded-circle border me-2"
+                             style="object-fit: cover;">
+                        <span class="text-primary fw-medium">{{ user.username }}</span>
                     </a>
-                    {% else %}
-                    <a class="nav-link text-danger" href="{% url 'profile' user.id %}">
-                        <img src="{{ user.avatar.url }}" width="25" class="rounded-circle"/> Chào {{ user.username }}
-                    </a>
-                    {% endif %}
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-white" href="#" id="logout-link">Đăng xuất</a>
-                    <form id="logout-form" action="{% url 'logout' %}" method="post" style="display: none;">
-                        {% csrf_token %}
-                    </form>
+                    <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg p-2">
+                        <li>
+                            <a class="dropdown-item rounded-3 p-3"
+                               href="{% if user.role == 'trainer' %}{% url 'trainer_detail' user.id %}{% else %}{% url 'profile' user.id %}{% endif %}">
+                                <i class="fas fa-user-circle me-2"></i>Hồ sơ
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item rounded-3 p-3 text-danger"
+                               href="#"
+                               id="logout-link">
+                                <i class="fas fa-sign-out-alt me-2"></i>Đăng xuất
+                            </a>
+                            <form id="logout-form"
+                                  action="{% url 'logout' %}"
+                                  method="post"
+                                  style="display: none;">
+                                {% csrf_token %}
+                            </form>
+                        </li>
+                    </ul>
                 </li>
                 {% else %}
-                <li class="nav-item">
-                    <a class="nav-link text-white" href="{% url 'login' %}">Đăng nhập</a>
+                <!-- Login Button -->
+                <li class="nav-item mx-2">
+                    <a class="btn btn-primary px-4 rounded-pill fw-medium"
+                       href="{% url 'login' %}">
+                        <i class="fas fa-sign-in-alt me-2"></i>Đăng nhập
+                    </a>
                 </li>
                 {% endif %}
             </ul>
@@ -60,30 +114,66 @@
     </div>
 </nav>
 
-<script>
-    document.getElementById("logout-link").addEventListener("click", function (event) {
-        event.preventDefault(); // Prevent default link behavior
-        document.getElementById("logout-form").submit(); // Submit the hidden form
-    });
-</script>
+<style>
+    .navbar {
+        transition: all 0.3s ease;
+    }
+
+    .nav-link {
+        transition: all 0.2s ease;
+        position: relative;
+    }
+
+    .nav-link:hover {
+        background: #f8f9fa;
+    }
+
+    .nav-link.active {
+        background: #e9ecef;
+    }
+
+    .dropdown-item {
+        transition: all 0.2s ease;
+    }
+
+    .dropdown-item:hover {
+        background: #f1f3f5;
+        transform: translateX(5px);
+    }
+
+    .navbar-toggler {
+        border: none;
+        padding: 0.5rem;
+    }
+
+    .navbar-toggler:focus {
+        box-shadow: none;
+    }
+</style>
 
 <script>
-    document.querySelectorAll('.nav-item.dropdown').forEach(function (dropdown) {
-        dropdown.addEventListener('mouseenter', function () {
-            let toggle = dropdown.querySelector('[data-bs-toggle="dropdown"]');
-            let menu = dropdown.querySelector('.dropdown-menu');
-            if (!toggle.classList.contains('show')) {
-                let bsDropdown = bootstrap.Dropdown.getOrCreateInstance(toggle);
-                bsDropdown.show();
+    // Hover Dropdown Logic
+    document.querySelectorAll('.nav-item.dropdown').forEach(item => {
+        item.addEventListener('mouseenter', () => {
+            const dropdown = bootstrap.Dropdown.getInstance(item.querySelector('.dropdown-toggle'));
+            if (!dropdown) {
+                new bootstrap.Dropdown(item.querySelector('.dropdown-toggle')).show();
+            } else {
+                dropdown.show();
             }
         });
-        dropdown.addEventListener('mouseleave', function () {
-            let toggle = dropdown.querySelector('[data-bs-toggle="dropdown"]');
-            let menu = dropdown.querySelector('.dropdown-menu');
-            if (toggle.classList.contains('show')) {
-                let bsDropdown = bootstrap.Dropdown.getOrCreateInstance(toggle);
-                bsDropdown.hide();
+
+        item.addEventListener('mouseleave', () => {
+            const dropdown = bootstrap.Dropdown.getInstance(item.querySelector('.dropdown-toggle'));
+            if (dropdown) {
+                dropdown.hide();
             }
         });
+    });
+
+    // Logout Handler
+    document.getElementById('logout-link')?.addEventListener('click', function(e) {
+        e.preventDefault();
+        document.getElementById('logout-form').submit();
     });
 </script>

@@ -1,4 +1,102 @@
-<div class="mt-4 p-5 text-black rounded" style="background-color: rgb(204, 229, 255);">
-    <h2>Trung tâm Thể dục Thể thao</h2>
-    <p>Trung tâm Thể dục Thể thao <a class="text-decoration-none text-black" href="https://www.youtube.com/watch?v=3yaab2_EEHM">&copy;</a> 2025</p>
-</div>
+<!-- ft.html -->
+<footer class="border-top bg-white">
+    <div class="container-fluid px-4 py-5">
+        <div class="row g-5">
+            <!-- Column 1: Brand Info -->
+            <div class="col-lg-4">
+                <h3 class="navbar-brand fw-bold fs-3 fas fa-dumbbell me-2" style="background: linear-gradient(45deg, #2563eb, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                    NUN SPORT
+                </h3>
+                <p class="text-muted mb-3">
+                    <i class="text-primary"></i>Nâng tầm thể lực - Định hình phong cách
+                </p>
+                <div class="d-flex gap-3">
+                    <a href="#" class="text-decoration-none text-dark hover-gradient">
+                        <i class="fab fa-facebook-square fs-4"></i>
+                    </a>
+                    <a href="#" class="text-decoration-none text-dark hover-gradient">
+                        <i class="fab fa-youtube fs-4"></i>
+                    </a>
+                    <a href="#" class="text-decoration-none text-dark hover-gradient">
+                        <i class="fab fa-tiktok fs-4"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Column 2: Quick Links -->
+            <div class="col-lg-4">
+                <h5 class="mb-4 fw-semibold text-primary">Liên kết nhanh</h5>
+                <ul class="list-unstyled">
+                    <li class="mb-3">
+                        <a href="/#classes" class="text-decoration-none text-muted footer-link">
+                            <i class="fas fa-arrow-right me-2"></i>Lớp học
+                        </a>
+                    </li>
+                    <li class="mb-3">
+                        <a href="/#trainers" class="text-decoration-none text-muted footer-link">
+                            <i class="fas fa-arrow-right me-2"></i>Huấn luyện viên
+                        </a>
+                    </li>
+                    <li class="mb-3">
+                        <a href="{% url 'news' %}" class="text-decoration-none text-muted footer-link">
+                            <i class="fas fa-arrow-right me-2"></i>Tin tức
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Column 3: Contact Info -->
+            <div class="col-lg-4">
+                <h5 class="mb-4 fw-semibold text-primary">Liên hệ</h5>
+                <ul class="list-unstyled">
+                    <li class="mb-3">
+                        <i class="fas fa-map-marker-alt me-2 text-primary"></i>
+                        <span class="text-muted">Số 1 Đại lộ Hòa Bình, Hà Nội</span>
+                    </li>
+                    <li class="mb-3">
+                        <i class="fas fa-phone me-2 text-primary"></i>
+                        <a href="tel:+84987654321" class="text-decoration-none text-muted footer-link">0987 654 321</a>
+                    </li>
+                    <li class="mb-3">
+                        <i class="fas fa-envelope me-2 text-primary"></i>
+                        <a href="mailto:info@nunsport.com" class="text-decoration-none text-muted footer-link">info@nunsport.com</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Copyright Section -->
+        <div class="border-top pt-4 mt-4 text-center">
+            <p class="mb-0 text-muted">
+                © 2025 NUN SPORT
+                <a href="https://www.youtube.com/watch?v=3yaab2_EEHM"
+                   class="text-decoration-none hover-gradient"
+                   target="_blank">
+                    <i class="fas fa-infinity ms-2"></i>
+                </a>
+            </p>
+        </div>
+    </div>
+</footer>
+
+<style>
+    .footer-link {
+        transition: all 0.3s ease;
+        position: relative;
+    }
+
+    .footer-link:hover {
+        color: #2563eb !important;
+        transform: translateX(5px);
+    }
+
+    .hover-gradient:hover {
+        background: linear-gradient(45deg, #2563eb, #3b82f6);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    footer {
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05);
+    }
+</style>
