@@ -12,6 +12,10 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 
+import cloudinary
+import cloudinary.api
+import cloudinary.uploader
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -38,6 +42,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'pes.apps.PesConfig',
+    'django.contrib.humanize',
+    'cloudinary',
+    'cloudinary_storage',
 ]
 
 MIDDLEWARE = [
@@ -82,22 +89,36 @@ DATABASES = {
     #     'NAME': BASE_DIR / 'db.sqlite3',
     # }
 
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'pedb',
-        'USER': 'root',
-        'PASSWORD': '0420',
-        'HOST': '',
-    }
-
     # 'default': {
     #     'ENGINE': 'django.db.backends.mysql',
     #     'NAME': 'pedb',
     #     'USER': 'root',
-    #     'PASSWORD': '1234',
+    #     'PASSWORD': '0420',
     #     'HOST': '',
     # }
+
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'pedb',
+        'USER': 'root',
+        'PASSWORD': '1234',
+        'HOST': '',
+    }
 }
+
+# Cloudinary configuration
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': 'dciicd8kr',
+    'API_KEY': '729184597924335',
+    'API_SECRET': 'ZrP8FWMIGWKrQJc277QXTo6_jqY'
+}
+
+# Cấu hình Cloudinary SDK (quan trọng)
+cloudinary.config(
+    cloud_name=CLOUDINARY_STORAGE['CLOUD_NAME'],
+    api_key=CLOUDINARY_STORAGE['API_KEY'],
+    api_secret=CLOUDINARY_STORAGE['API_SECRET']
+)
 
 AUTH_USER_MODEL = 'pes.UserProfile'
 
@@ -126,7 +147,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Ho_Chi_Minh'
 
 USE_I18N = True
 
@@ -137,6 +158,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
+LOGIN_URL = '/accounts/login/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

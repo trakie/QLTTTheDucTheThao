@@ -1,4 +1,15 @@
-from .models import Class
+from .models import Class, ClassSchedule, Trainer
+from django.db.models import Prefetch
+
 
 def get_all_classes():
-    return Class.objects.select_related('schedule', 'trainer').all()
+    return Class.objects.select_related('trainer').prefetch_related(
+        Prefetch(
+            'schedules',
+            queryset=ClassSchedule.objects.select_related('schedule')
+        )
+    )
+
+
+def get_all_trainers():
+    return Trainer.objects.select_related('user').prefetch_related('classes').all();

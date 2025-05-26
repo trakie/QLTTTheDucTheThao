@@ -1,0 +1,57 @@
+{% extends 'pes/layout/base.html' %}
+
+{% load humanize %}
+
+{% block content %}
+<h3 class="mt-3">Chi tiết lớp {{ class_obj.name }}</h3>
+<div class="container mt-3">
+        <div class="row">
+            <!-- Hình ảnh -->
+            <div class="col-md-6">
+                <div>
+                    <img src="{{ class_obj.image_url }}" alt="{{ class_obj.name }}" class="d-block w-100">
+                </div>
+            </div>
+
+            <!-- Thông tin chi tiết -->
+            <div class="col-md-6">
+                <div>
+                    <h2>{{ class_obj.name }}</h2>
+                </div>
+                <h4 class="text-success">Giá: {{ class_obj.price|floatformat:0|intcomma }} VNĐ</h4>
+                <p>
+                    <strong>Huấn luyện viên:</strong> {{ class_obj.trainer }}<br>
+                    <strong>Khung thời gian:</strong>
+                    <ul>
+                      {% for cs in class_obj.schedules.all %}
+                        <li>{{ cs.schedule }}</li>
+                      {% empty %}
+                        <li>No schedule assigned</li>
+                      {% endfor %}
+                    </ul>
+                </p>
+                <h4 class="mt-2">Mô Tả Lớp</h4>
+                <p>
+                    {{ class_obj.description }}
+                </p>
+            </div>
+        </div>
+
+    <div class="mt-2 row">
+        <h4>Thông tin huấn luyện viên <a href="{% url 'trainer_detail' class_obj.trainer.user.id %}">{{ class_obj.trainer }}</a></h4>
+        <ul>
+            <li>Chuyên ngành: {{ class_obj.trainer.specialization }}</li>
+            <li>Kinh nghiệm: {{ class_obj.trainer.experience }}</li>
+        </ul>
+    </div>
+    <div class="mt-2 row">
+        {% if user.is_authenticated %}
+        <a href="{% url 'enroll' class_obj.id %}" class="btn btn-success btn-sm">Đăng ký lớp này</a>
+        <a href="/" class="btn btn-primary btn-sm mt-1">Quay về trang chủ</a>
+        {% else %}
+        <p class="text-danger text-center">Vui lòng đến cơ sở của chúng tôi để đăng ký thành viên.</p>
+        <a href="/" class="btn btn-primary btn-sm mt-1">Quay về trang chủ</a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

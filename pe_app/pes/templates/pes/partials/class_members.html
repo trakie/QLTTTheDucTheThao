@@ -1,0 +1,77 @@
+<div class="mt-3">
+    <h4>Học viên lớp {{ class_obj.name }}</h4>
+
+    {% if enrollments %}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Tên học viên</th>
+                <th>Trạng thái</th>
+                <th>SĐT</th>
+                <th>Ngày đăng ký</th>
+                <th>Cập nhật</th>
+                <th>Đặt lịch</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for enroll in enrollments %}
+            <tr>
+                <td>{{ enroll.member.get_full_name }}</td>
+                <td>
+                    <!-- Dropdown giữ nguyên giá trị ban đầu -->
+                    <select class="form-select status-select"
+                            id="status_{{ enroll.id }}"
+                            style="width: 150px;">
+                        {% for value, display in enroll.STATUS_CHOICES %}
+                            {% if value != 'pending' %} <!-- Thêm điều kiện lọc -->
+                                <option value="{{ value }}"
+                                    {% if value == enroll.status %}selected{% endif %}>
+                                    {{ display }}
+                                </option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                </td>
+                <td>{{ enroll.member.phone }}</td>
+                <td>{{ enroll.enrollment_date|date:"d/m/Y" }}</td>
+                <td>
+                    <!-- Nút lưu với data attributes -->
+                    <button class="btn btn-sm btn-primary save-btn"
+                            data-enrollment-id="{{ enroll.id }}"
+                            data-original-status="{{ enroll.status }}">
+                        Lưu
+                    </button>
+                </td>
+                <td>
+                    <button class="btn btn-sm btn-success">
+                        Đặt lịch
+                    </button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="alert alert-info">
+        Chưa có học viên nào trong lớp này
+    </div>
+    {% endif %}
+</div>
+
+<div id="messageContainer"></div>
+
+<style>
+    .status-select {
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    .status-select:focus {
+        box-shadow: 0 0 5px rgba(0,123,255,0.5);
+    }
+    .save-btn {
+        transition: transform 0.2s ease;
+    }
+    .save-btn:hover {
+        transform: scale(1.1);
+    }
+</style>
