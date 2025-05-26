@@ -3,8 +3,43 @@
 <div class="container mt-4">
     <h1 class="mt-2 mb-4 text-danger text-center">Tin tức & Sự kiện</h1>
 
+    <div class="my-search-box border p-3 rounded mb-3 mt-3" style="background-color: #cce5ff;">
+    <form method="get" action="{% url 'news' %}" class="d-flex flex-nowrap align-items-center gap-2">
+        <!-- Ô tìm kiếm -->
+        <input class="form-control"
+               type="text"
+               placeholder="Tìm nội dung..."
+               name="kw"
+               value="{{ request.GET.kw }}"
+               style="min-width: 200px;">
+
+        <!-- Dropdown loại tin -->
+        <select class="form-select"
+                name="news_type"
+                style="min-width: 180px;">
+            <option value="" disabled selected>Chọn loại tin</option>
+            {% for type in categories %}
+                <option value="{{ type.0 }}"
+                        {% if request.GET.class_type == type.0 %}selected{% endif %}>
+                    {{ type.1 }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <!-- Nhóm nút -->
+        <div class="d-flex gap-2 nowrap">
+            <button class="btn btn-primary" type="submit">
+                <i class="fas fa-search"></i>
+            </button>
+            <a href="{% url 'news' %}" class="btn btn-secondary">
+                <i class="fas fa-sync-alt"></i>
+            </a>
+        </div>
+    </form>
+</div>
+
     {% if user.role in 'admin' or 'trainer' %}
-    <div class="mb-4">
+    <div class="mb-4 text-end row">
         <a href="{% url 'post_create' %}" class="btn btn-success">
             <i class="fas fa-plus"></i> Tạo bài viết mới
         </a>
@@ -21,7 +56,13 @@
                 </a>
             </h2>
             <div class="text-muted small mb-2">
+                {% if post.category == 'tips' %}
                 <span class="badge bg-primary">{{ post.get_category_display }}</span>
+                {% elif post.category == 'nutrition' %}
+                <span class="badge bg-success">{{ post.get_category_display }}</span>
+                {% else %}
+                <span class="badge bg-danger">{{ post.get_category_display }}</span>
+                {% endif %}
                 <span>Đăng bởi {{ post.author.get_full_name|default:post.author.username }}</span>
                 <span> - {{ post.created_at|date:"d/m/Y H:i" }}</span>
             </div>
@@ -29,7 +70,7 @@
         </div>
     </div>
     {% empty %}
-    <div class="alert alert-info">Chưa có bài viết nào trong mục này.</div>
+    <div class="alert alert-info">Không tìm thấy nội dung.</div>
     {% endfor %}
 
     <!-- Phân trang -->

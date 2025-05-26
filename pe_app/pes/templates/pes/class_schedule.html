@@ -9,7 +9,7 @@
         <!-- Ô tìm kiếm -->
         <input class="form-control"
                type="text"
-               placeholder="Tìm lớp..."
+               placeholder="Tìm theo tên lớp..."
                name="kw"
                value="{{ request.GET.kw }}"
                style="min-width: 200px;">
@@ -46,7 +46,7 @@
     <div class="class-card row">
         <!-- Hiển thị ảnh lớp -->
         <div class="col-6">
-            <h2><a href="{% url 'class_detail' class_obj.id %}">{{ class_obj.name }}</a></h2>
+            <h2><a href="{% url 'class_detail' class_obj.id %}" class="text-decoration-none">{{ class_obj.name }}</a></h2>
             <p class="price">Giá: {{ class_obj.price|floatformat:0|intcomma }} VNĐ</p>
             <!-- Hiển thị thông tin HLV -->
             {% if class_obj.trainer %}
