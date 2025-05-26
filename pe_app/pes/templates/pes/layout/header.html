@@ -21,7 +21,7 @@
                         <li><a class="dropdown-item" href="/#trainers">Huấn luyện viên</a></li>
                     </ul>
                 </li>
-                {% if user.role == 'staff' %}
+                {% if user.role == 'staff' or user.role == 'admin' %}
                 <li class="nav-item">
                       <a class="nav-link" href="{% url 'class_schedule' %}">Lịch học</a>
                 </li>

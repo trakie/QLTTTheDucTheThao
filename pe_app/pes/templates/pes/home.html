@@ -66,6 +66,7 @@
 
 <!-- Huấn luyện viên -->
 <h3 id="trainers" class="mt-5">Danh sách huấn luyện viên</h3>
+{% if trainers %}
 <div class="d-flex flex-row flex-nowrap overflow-auto gap-3 py-3">
     {% for t in trainers %}
         <div class="card" style="min-width: 250px; flex: 0 0 auto;">
@@ -80,5 +81,8 @@
         </div>
     {% endfor %}
 </div>
+{% else %}
+<div class="alert alert-primary">Không có huấn luyện viên.</div>
+{% endif %}
 
 {% endblock %}

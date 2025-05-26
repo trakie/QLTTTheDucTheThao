@@ -89,21 +89,21 @@ DATABASES = {
     #     'NAME': BASE_DIR / 'db.sqlite3',
     # }
 
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'pedb',
-        'USER': 'root',
-        'PASSWORD': '0420',
-        'HOST': '',
-    }
-
     # 'default': {
     #     'ENGINE': 'django.db.backends.mysql',
     #     'NAME': 'pedb',
     #     'USER': 'root',
-    #     'PASSWORD': '1234',
+    #     'PASSWORD': '0420',
     #     'HOST': '',
     # }
+
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'pedb',
+        'USER': 'root',
+        'PASSWORD': '1234',
+        'HOST': '',
+    }
 }
 
 # Cloudinary configuration
