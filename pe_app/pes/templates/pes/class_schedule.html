@@ -3,6 +3,13 @@
 {% load humanize %}
 
 {% block content %}
+<!-- Nút quay lại -->
+    <a href="{% url 'home' %}" class="btn btn-outline-secondary mt-4">
+        <i class="fas fa-arrow-left"></i> Quay lại trang chủ
+    </a>
+
+<h1 class="text-center text-danger mt-2 mb-4">Thông tin lịch học</h1>
+
 <!-- Search box -->
 <div class="my-search-box border p-3 rounded mb-3 mt-3" style="background-color: #cce5ff;">
     <form method="get" action="{% url 'class_schedule' %}" class="d-flex flex-nowrap align-items-center gap-2">
@@ -40,8 +47,6 @@
 </div>
 
 <div class="container">
-    <h1 class="text-center text-danger mt-2 mb-4">Thông tin lịch học</h1>
-
     {% for class_obj in page_obj %}
     <div class="class-card row">
         <!-- Hiển thị ảnh lớp -->
