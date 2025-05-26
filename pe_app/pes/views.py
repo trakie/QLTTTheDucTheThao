@@ -6,8 +6,9 @@ from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from django.db.models import Prefetch
+from django.core.paginator import Paginator
 from . import dao
-from .models import Class, Trainer, Enrollment, Payment, ClassSchedule, UserProfile
+from .models import Class, Trainer, Enrollment, Payment, ClassSchedule, UserProfile, Post
 import logging
 
 logger = logging.getLogger(__name__)
@@ -281,3 +282,21 @@ def class_schedule(request):
     ).all()
 
     return render(request, 'pes/class_schedule.html', {'classes': classes})
+
+def news(request):
+    # Lấy tất cả bài viết và sắp xếp theo thời gian tạo
+    post_list = Post.objects.all()
+
+    # Phân trang với 5 bài viết mỗi trang
+    paginator = Paginator(post_list, 5)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, 'pes/news.html', {
+        'page_obj': page_obj,
+        'categories': Post.CATEGORIES  # Thêm categories vào context nếu cần filter
+    })
+
+def news_detail(request, pk):
+    post = get_object_or_404(Post.objects.select_related('author'), pk=pk)
+    return render(request, 'pes/news_detail.html', {'post': post})

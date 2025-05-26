@@ -1,0 +1,73 @@
+{% extends 'pes/layout/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Nút quay lại -->
+    <a href="{% url 'news' %}" class="btn btn-outline-secondary mb-4">
+        <i class="fas fa-arrow-left"></i> Quay lại tin tức
+    </a>
+
+    <!-- Bài viết chi tiết -->
+    <article class="card">
+        <div class="card-body">
+            <!-- Header bài viết -->
+            <div class="mb-4">
+                <h1 class="card-title display-4">{{ post.title }}</h1>
+                <div class="d-flex align-items-center text-muted small">
+                    <span class="badge bg-primary me-2">{{ post.get_category_display }}</span>
+                    <div>
+                        <i class="fas fa-user me-1"></i>
+                        {{ post.author.get_full_name|default:post.author.username }}
+                    </div>
+                    <div class="mx-2">•</div>
+                    <div>
+                        <i class="fas fa-clock me-1"></i>
+                        {{ post.created_at|date:"d/m/Y H:i" }}
+                    </div>
+                    {% if post.updated_at != post.created_at %}
+                    <div class="mx-2">•</div>
+                    <div>
+                        <i class="fas fa-edit me-1"></i>
+                        Cập nhật: {{ post.updated_at|date:"d/m/Y H:i" }}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Nội dung bài viết -->
+            <div class="article-content">
+                {{ post.content|linebreaks }}
+            </div>
+        </div>
+    </article>
+
+    <!-- Nút quay lại ở cuối -->
+    <div class="mt-4">
+        <a href="{% url 'news' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> Quay lại tin tức
+        </a>
+    </div>
+</div>
+
+<style>
+    .article-content {
+        font-size: 1.1rem;
+        line-height: 1.8;
+    }
+
+    .article-content img {
+        max-width: 100%;
+        height: auto;
+        margin: 1rem 0;
+        border-radius: 8px;
+    }
+
+    .article-content h2,
+    .article-content h3 {
+        margin-top: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+</style>
+{% endblock %}
