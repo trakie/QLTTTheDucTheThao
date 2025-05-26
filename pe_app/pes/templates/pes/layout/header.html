@@ -1,72 +1,75 @@
 <nav class="navbar navbar-expand-sm bg-dark navbar-dark">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="/" style="color: rgb(204, 229, 255); font-weight: bold;">NUN SPORT</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#collapsibleNavbar">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="collapsibleNavbar">
-      <ul class="navbar-nav me-auto">
-          <li class="nav-item">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/" style="color: rgb(204, 229, 255); font-weight: bold;">NUN SPORT</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#collapsibleNavbar">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="collapsibleNavbar">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
                     <a class="nav-link" href="/">Trang chủ</a>
                 </li>
-          <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                  Trung tâm
-              </a>
-              <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                  <li><a class="dropdown-item" href="/#classes">Lớp</a></li>
-                  <li><a class="dropdown-item" href="/#trainers">Huấn luyện viên</a></li>
-              </ul>
-          </li>
-          {% if user.role == 'staff' %}
-          <li class="nav-item">
-                <a class="nav-link" href="#">Lịch học</a>
-          </li>
-          <li class="nav-item">
-                <a class="nav-link" href="#">Hóa đơn</a>
-          </li>
-          {% endif %}
-      </ul>
-
-      <ul class="navbar-nav ms-auto">
-                {% if user.is_authenticated %}
-                    <li class="nav-item">
-                        {% if user.role == 'trainer' %}
-                        <a class="nav-link text-danger" href="{% url 'trainer_detail' user.id %}">
-                            <img src="{{ user.avatar.url }}" width="25" class="rounded-circle"/> Chào {{ user.username }}
-                        </a>
-                        {% else %}
-                        <a class="nav-link text-danger" href="{% url 'profile' user.id %}">
-                            <img src="{{ user.avatar.url }}" width="25" class="rounded-circle"/> Chào {{ user.username }}
-                        </a>
-                        {% endif %}
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-white" href="#" id="logout-link">Đăng xuất</a>
-                      <form id="logout-form" action="{% url 'logout' %}" method="post" style="display: none;">
-                        {% csrf_token %}
-                      </form>
-                    </li>
-                {% else %}
-                    <li class="nav-item">
-                        <a class="nav-link text-white" href="{% url 'login' %}">Đăng nhập</a>
-                    </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'news' %}">Tin tức - Sự kiện</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Trung tâm
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <li><a class="dropdown-item" href="/#classes">Lớp</a></li>
+                        <li><a class="dropdown-item" href="/#trainers">Huấn luyện viên</a></li>
+                    </ul>
+                </li>
+                {% if user.role == 'staff' %}
+                <li class="nav-item">
+                      <a class="nav-link" href="{% url 'class_schedule' %}">Lịch học</a>
+                </li>
+                <li class="nav-item">
+                      <a class="nav-link" href="{% url 'receipts' %}">Hóa đơn</a>
+                </li>
                 {% endif %}
             </ul>
+
+            <ul class="navbar-nav ms-auto">
+                {% if user.is_authenticated %}
+                <li class="nav-item">
+                    {% if user.role == 'trainer' %}
+                    <a class="nav-link text-danger" href="{% url 'trainer_detail' user.id %}">
+                        <img src="{{ user.avatar.url }}" width="25" class="rounded-circle"/> Chào {{ user.username }}
+                    </a>
+                    {% else %}
+                    <a class="nav-link text-danger" href="{% url 'profile' user.id %}">
+                        <img src="{{ user.avatar.url }}" width="25" class="rounded-circle"/> Chào {{ user.username }}
+                    </a>
+                    {% endif %}
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="#" id="logout-link">Đăng xuất</a>
+                    <form id="logout-form" action="{% url 'logout' %}" method="post" style="display: none;">
+                        {% csrf_token %}
+                    </form>
+                </li>
+                {% else %}
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="{% url 'login' %}">Đăng nhập</a>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
     </div>
-  </div>
 </nav>
 
 <script>
-  document.getElementById("logout-link").addEventListener("click", function (event) {
-    event.preventDefault(); // Prevent default link behavior
-    document.getElementById("logout-form").submit(); // Submit the hidden form
-  });
+    document.getElementById("logout-link").addEventListener("click", function (event) {
+        event.preventDefault(); // Prevent default link behavior
+        document.getElementById("logout-form").submit(); // Submit the hidden form
+    });
 </script>
 
 <script>
-    document.querySelectorAll('.nav-item.dropdown').forEach(function(dropdown) {
-        dropdown.addEventListener('mouseenter', function() {
+    document.querySelectorAll('.nav-item.dropdown').forEach(function (dropdown) {
+        dropdown.addEventListener('mouseenter', function () {
             let toggle = dropdown.querySelector('[data-bs-toggle="dropdown"]');
             let menu = dropdown.querySelector('.dropdown-menu');
             if (!toggle.classList.contains('show')) {
@@ -74,13 +77,13 @@
                 bsDropdown.show();
             }
         });
-        dropdown.addEventListener('mouseleave', function() {
+        dropdown.addEventListener('mouseleave', function () {
             let toggle = dropdown.querySelector('[data-bs-toggle="dropdown"]');
             let menu = dropdown.querySelector('.dropdown-menu');
-                if (toggle.classList.contains('show')) {
-                  let bsDropdown = bootstrap.Dropdown.getOrCreateInstance(toggle);
-                  bsDropdown.hide();
-                }
+            if (toggle.classList.contains('show')) {
+                let bsDropdown = bootstrap.Dropdown.getOrCreateInstance(toggle);
+                bsDropdown.hide();
+            }
         });
     });
 </script>

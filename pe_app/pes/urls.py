@@ -19,4 +19,8 @@ urlpatterns = [
          views.update_enrollment,
          name='update_enrollment'),
     path('update-avatar/', views.update_avatar, name='update_avatar'),
+    path('receipts/', views.receipts, name='receipts'),
+    path('class-schedule/', views.class_schedule, name='class_schedule'),
+    path('news/', views.news, name='news'),
+    path('news/<int:pk>/', views.news_detail, name='news_detail'),
 ]

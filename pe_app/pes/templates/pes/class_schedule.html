@@ -1,0 +1,103 @@
+{% extends 'pes/layout/base.html' %}
+
+{% load humanize %}
+
+{% block content %}
+<div class="container">
+    <h1 class="text-center text-danger mt-2 mb-4">Thông tin lịch học</h1>
+
+    {% for class_obj in classes %}
+    <div class="class-card row">
+        <!-- Hiển thị ảnh lớp -->
+        <div class="col-6">
+            <h2><a href="{% url 'class_detail' class_obj.id %}">{{ class_obj.name }}</a></h2>
+            <p class="price">Giá: {{ class_obj.price|floatformat:0|intcomma }} VNĐ</p>
+            <!-- Hiển thị thông tin HLV -->
+            {% if class_obj.trainer %}
+                <p class="trainer">Huấn luyện viên: {{ class_obj.trainer }}</p>
+            {% endif %}
+        </div>
+        <div class="col-6">
+            <!-- Hiển thị lịch học -->
+            <h3>Lịch Học:</h3>
+            {% if class_obj.schedules.all %}
+                <ul class="schedule-list scrollable">
+                    {% for schedule in class_obj.schedules.all %}
+                        <li>{{ schedule.schedule.display_schedule }}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>Chưa có lịch học được cập nhật</p>
+            {% endif %}
+        </div>
+    </div>
+    {% empty %}
+        <p>Hiện không có lớp học nào.</p>
+    {% endfor %}
+</div>
+
+<style>
+        .class-card {
+        border: 1px solid #ddd;
+        padding: 20px;
+        margin-bottom: 20px;
+        border-radius: 8px;
+    }
+
+    .class-image {
+        max-width: 300px;
+        height: auto;
+        margin-bottom: 15px;
+    }
+
+    .schedule-list {
+        list-style-type: none;
+        padding-left: 0;
+    }
+
+    .schedule-list li {
+        padding: 5px 0;
+        border-bottom: 1px solid #eee;
+    }
+
+    .trainer {
+        color: #666;
+        font-style: italic;
+    }
+
+    .price {
+        color: #e91e63;
+        font-weight: bold;
+    }
+
+    /* Thêm style cho danh sách cuộn */
+    .schedule-list.scrollable {
+        max-height: 150px; /* Điều chỉnh chiều cao tối đa theo ý muốn */
+        overflow-y: auto;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 10px;
+        margin: 10px 0;
+    }
+
+    /* Tuỳ chỉnh thanh cuộn cho đẹp */
+    .schedule-list.scrollable::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .schedule-list.scrollable::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 4px;
+    }
+
+    .schedule-list.scrollable::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 4px;
+    }
+
+    .schedule-list.scrollable::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
+</style>
+
+{% endblock %}
