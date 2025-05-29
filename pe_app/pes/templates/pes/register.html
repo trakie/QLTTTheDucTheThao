@@ -1,0 +1,80 @@
+{% extends 'pes/layout/base.html' %}
+
+{% block content %}
+<!-- Nút quay lại -->
+    <a href="{% url 'home' %}" class="btn btn-outline-secondary mt-4">
+        <i class="fas fa-arrow-left"></i> Quay lại trang chủ
+    </a>
+
+<h1 class="text-center text-danger mt-2 mb-4">Đăng ký hội viên mới</h1>
+
+<div class="row justify-content-center registration-container">
+    <div class="col-md-6">
+        {% if error_message %}
+        <div class="alert alert-danger">{{ error_message }}</div>
+        {% endif %}
+
+        <form method="post" class="card p-4">
+            {% csrf_token %}
+
+            <div class="mb-3">
+                <label for="username" class="form-label">Tên đăng nhập*</label>
+                <input type="text" class="form-control" id="username" name="username" required>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="first_name" class="form-label">Họ*</label>
+                    <input type="text" class="form-control" id="first_name" name="first_name" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="last_name" class="form-label">Tên*</label>
+                    <input type="text" class="form-control" id="last_name" name="last_name" required>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="email" class="form-label">Email*</label>
+                <input type="email" class="form-control" id="email" name="email" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="phone" class="form-label">Số điện thoại</label>
+                <input type="tel" class="form-control" id="phone" name="phone">
+            </div>
+
+            <div class="mb-3">
+                <label for="address" class="form-label">Địa chỉ</label>
+                <textarea class="form-control" id="address" name="address" rows="2"></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label for="password" class="form-label">Mật khẩu*</label>
+                <input type="password" class="form-control" id="password" name="password" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="password_confirm" class="form-label">Xác nhận mật khẩu*</label>
+                <input type="password" class="form-control" id="password_confirm" name="password_confirm" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">Đăng ký hội viên</button>
+        </form>
+    </div>
+</div>
+
+<style>
+    .registration-container {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        min-height: 100vh;
+        padding: 2rem 0;
+    }
+    .registration-card {
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0, 82, 204, 0.1);
+        border: none;
+        overflow: hidden;
+        transition: transform 0.3s ease;
+    }
+</style>
+{% endblock %}

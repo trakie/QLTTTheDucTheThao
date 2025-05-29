@@ -1,0 +1,274 @@
+{% extends 'pes/layout/base.html' %}
+
+{% block content %}
+
+<h1 class="text-center text-danger mt-2 mb-4">Thông tin huấn luyện viên {{ trainer_obj }}</h1>
+<div class="row mt-4">
+    <div class="col-9">
+        <h3>Danh sách lớp đang dạy</h3>
+        {% if trainer_obj.classes.all %}
+            {% if user.role == 'trainer' and trainer_obj.user.id == user.id %}
+            Chọn lớp:
+            <select class="form-select" id="classSelect">
+                {% for c in trainer_obj.classes.all %}
+                <option value="{{ c.id }}">{{ c.name }}</option>
+                {% endfor %}
+            </select>
+
+            <div id="studentList" class="mt-3"></div>
+            {% else %}
+            <div class="d-flex flex-row flex-nowrap overflow-auto gap-3 py-3">
+                {% for c in trainer_obj.classes.all %}
+                    <div class="card" style="min-width: 250px; flex: 0 0 auto;">
+                        <img class="card-img-top" src="{{ c.image_url }}" alt="{{ c.get_class_type_display }}">
+                        <div class="card-body">
+                            <h4 class="card-title"><strong>{{ c.get_class_type_display }}:</strong> {{ c.name }}</h4>
+                            <p class="card-text">
+                              <em>Trainer:</em>
+                              {% if c.trainer %}
+                                {{ c.trainer }}
+                              {% else %}
+                                N/A
+                              {% endif %}
+                            </p>
+                            <div class="d-grid gap-2">
+                                <a href="{% url 'class_detail' c.id %}"
+                                   class="btn btn-outline-primary btn-sm">
+                                   <i class="fas fa-info-circle me-2"></i>Chi tiết
+                                </a>
+                                <a href="{% url 'enroll' c.id %}"
+                                   class="btn btn-gradient-primary btn-sm">
+                                   <i class="fas fa-calendar-check me-2"></i>Đăng ký ngay
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        {% else %}
+        <div class="alert alert-primary">Huấn luyện viên chưa nhận lớp.</div>
+        {% endif %}
+    </div>
+    <div class="col-3">
+        <div style="background-color: #cce5ff; border-radius: 20px; padding: 20px; border: solid lightblue 2px;">
+            <img src="{{ trainer_obj.user.avatar.url }}" id="userAvatar" width="200" class="rounded-circle d-block w-100"/>
+            <h2 class="mt-1 text-center">{{ trainer_obj.user.get_full_name }}</h2>
+            <p>
+                <h4>Thông tin cá nhân</h4>
+                {% if trainer_obj.user.role == 'member' %}
+                &#128188 Hội viên<br>
+                {% elif trainer_obj.user.role == 'staff' %}
+                &#128188 Nhân viên lễ tân<br>
+                {% elif trainer_obj.user.role == 'trainer' %}
+                &#128188 Huấn luyện viên<br>
+                {% else %}
+                &#128188 Quản trị viên<br>
+                {% endif %}
+
+                {% if trainer_obj.user.email %}
+                &#128231 {{ trainer_obj.user.email }}<br>
+                {% else %}
+                &#128231 -<br>
+                {% endif %}
+
+                {% if trainer_obj.user.phone %}
+                &#128241 {{ trainer_obj.user.phone }}
+                {% else %}
+                &#128241 -
+                {% endif %}
+            </p>
+            <div class="row">
+                {% if user.id == trainer_obj.user.id %}
+                <a href="#" class="btn btn-primary btn-sm mt-1" id="updateAvatarBtn">Cập nhật avatar</a>
+                {% endif %}
+                <a href="/" class="btn btn-secondary btn-sm mt-1">Quay về trang chủ</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Update Avatar -->
+<div class="modal fade" id="avatarModal" tabindex="-1" aria-labelledby="avatarModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="avatarModalLabel">Cập nhật ảnh đại diện</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="avatarForm" method="post" enctype="multipart/form-data">
+                <div class="modal-body">
+                    {% csrf_token %}
+                    <input type="file" name="avatar" class="form-control" accept="image/*" required>
+                    <div class="mt-2 text-muted small">Hỗ trợ định dạng: JPG, PNG, GIF</div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .btn-gradient-primary {
+        background: linear-gradient(45deg, #2563eb, #3b82f6);
+        color: white !important;
+        border: none;
+        transition: all 0.3s ease;
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Load học viên khi trang được tải
+    const classSelect = document.getElementById('classSelect');
+
+    function loadStudents() {
+        fetch(`/trainer/get-class-members/${classSelect.value}/`)
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('studentList').innerHTML = html;
+            });
+    }
+
+    // Sự kiện thay đổi lớp
+    classSelect.addEventListener('change', loadStudents);
+
+    // Load lần đầu
+    loadStudents();
+});
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Hàm hiển thị thông báo
+    function showMessage(message, type = 'success') {
+        const container = document.getElementById('messageContainer');
+        const alert = document.createElement('div');
+        alert.className = `alert alert-${type} alert-dismissible fade show mt-3`;
+        alert.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        container.appendChild(alert);
+
+        setTimeout(() => alert.remove(), 3000);
+    }
+
+    // Xử lý cập nhật trạng thái
+    document.addEventListener('click', async function(e) {
+        if (e.target.classList.contains('save-btn')) {
+            const btn = e.target;
+            const enrollmentId = btn.dataset.enrollmentId;
+            const originalStatus = btn.dataset.originalStatus;
+
+            // Lấy giá trị hiện tại từ dropdown
+            const select = document.querySelector(`#status_${enrollmentId}`);
+            const newStatus = select.value;
+
+            // Nếu trạng thái không thay đổi
+            if (newStatus === originalStatus) {
+                showMessage('Trạng thái không thay đổi', 'info');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Đang lưu...';
+
+            try {
+                const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+                const response = await fetch(`/trainer/update-enrollment/${enrollmentId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken
+                    },
+                    body: JSON.stringify({ status: newStatus })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showMessage('Cập nhật thành công!', 'success');
+                    // Cập nhật trạng thái gốc mới
+                    btn.dataset.originalStatus = newStatus;
+                    // Đổi màu nút tạm thời
+                    btn.classList.remove('btn-primary');
+                    btn.classList.add('btn-success');
+                    setTimeout(() => {
+                        btn.classList.remove('btn-success');
+                        btn.classList.add('btn-primary');
+                    }, 2000);
+                } else {
+                    showMessage(data.error || 'Lỗi cập nhật!', 'danger');
+                    // Rollback giá trị dropdown
+                    select.value = originalStatus;
+                }
+            } catch (error) {
+                showMessage('Lỗi kết nối!', 'danger');
+                select.value = originalStatus;
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = 'Lưu';
+            }
+        }
+    });
+});
+</script>
+
+<!-- Thêm script xử lý AJAX -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const updateBtn = document.getElementById('updateAvatarBtn');
+    const avatarForm = document.getElementById('avatarForm');
+
+    // Mở modal
+    updateBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        new bootstrap.Modal(document.getElementById('avatarModal')).show();
+    });
+
+    // Xử lý submit form
+    avatarForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const submitBtn = this.querySelector('button[type="submit"]');
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = `
+            <span class="spinner-border spinner-border-sm"></span>
+            Đang tải lên...
+        `;
+
+        try {
+            const formData = new FormData(this);
+            const response = await fetch("{% url 'update_avatar' %}", {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                }
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) throw new Error(data.error || 'Lỗi không xác định');
+
+            if (data.success) {
+                document.getElementById('userAvatar').src = data.new_url + '?ts=' + Date.now();
+                bootstrap.Modal.getInstance(document.getElementById('avatarModal')).hide();
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Lỗi: ' + (error.message || 'Cập nhật thất bại'));
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = 'Lưu thay đổi';
+        }
+    });
+});
+</script>
+
+{% endblock %}

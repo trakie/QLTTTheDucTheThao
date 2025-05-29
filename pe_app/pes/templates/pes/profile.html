@@ -1,0 +1,254 @@
+{% extends 'pes/layout/base.html' %}
+
+{% block content %}
+
+<h1 class="text-center text-danger mt-2 mb-4">Trang cá nhân</h1>
+<div class="row">
+    <div class="col-3">
+        <div style="background-color: #cce5ff; border-radius: 20px; padding: 20px; border: solid lightblue 2px;">
+            <img src="{{ profile_user.avatar.url }}" id="userAvatar" width="200" class="rounded-circle d-block w-100"/>
+            <h2 class="mt-1 text-center">{{ profile_user.get_full_name }}</h2>
+            <p>
+                <h4>Thông tin cá nhân</h4>
+                {% if profile_user.role == 'member' %}
+                &#128188 Hội viên<br>
+                {% elif profile_user.role == 'staff' %}
+                &#128188 Nhân viên lễ tân<br>
+                {% elif profile_user.role == 'trainer' %}
+                &#128188 Huấn luyện viên<br>
+                {% else %}
+                &#128188 Quản trị viên<br>
+                {% endif %}
+
+                {% if profile_user.email %}
+                &#128231 {{ profile_user.email }}<br>
+                {% else %}
+                &#128231 -<br>
+                {% endif %}
+
+                {% if profile_user.phone %}
+                &#128241 {{ profile_user.phone }}
+                {% else %}
+                &#128241 -
+                {% endif %}
+            </p>
+            {% if user.id == profile_user.id %}
+            <div class="row">
+                <a href="#" class="btn btn-primary btn-sm mt-1" id="updateAvatarBtn">Cập nhật avatar</a>
+                <a href="/" class="btn btn-secondary btn-sm mt-1">Quay về trang chủ</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    <div class="col-8 ms-2">
+        <!-- Khối 1 - Các lớp đã hoàn thành -->
+        <h4>Các lớp đã hoàn thành</h4>
+        <div class="border rounded p-3 mb-4 shadow-sm" style="background-color: #d4edda; border-color: #c3e6cb !important;">
+            <div class="scrollable-container">
+                <table class="table table-hover mb-0">
+                    <thead style="background-color: #28a745; color: white; position: sticky; top: 0;">
+                        <tr>
+                            <th>STT</th>
+                            <th>Lớp học</th>
+                            <th>Ngày hoàn thành</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for enrollment in completed_enrollments %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ enrollment.class_enrolled.name }}</td>
+                            <td>{{ enrollment.completion_date|date:"d/m/Y"|default:"Đang cập nhật" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="3" class="text-center">Chưa có lớp nào hoàn thành</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Khối 2 - Các lớp đang tiến hành -->
+        <h4>Các lớp đang tiến hành</h4>
+        <div class="border rounded p-3 mb-4 shadow-sm" style="background-color: #cce5ff; border-color: #b8daff !important;">
+            <div class="scrollable-container">
+                <table class="table table-hover mb-0">
+                    <thead style="background-color: #28a745; color: white; position: sticky; top: 0;">
+                        <tr>
+                            <th>STT</th>
+                            <th>Lớp học</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for enrollment in active_enrollments %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ enrollment.class_enrolled.name }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="2" class="text-center">Không có lớp đang tiến hành</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Khối 3 - Các lớp cần thanh toán -->
+        <h4>Các lớp cần thanh toán</h4>
+        <div class="border rounded p-3 shadow-sm" style="background-color: #f8d7da; border-color: #f5c6cb !important;">
+            <div class="scrollable-container">
+                <table class="table table-hover mb-0">
+                    <thead style="background-color: #28a745; color: white; position: sticky; top: 0;">
+                        <tr>
+                            <th>STT</th>
+                            <th>Lớp học</th>
+                            <th>Số tiền</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for enrollment in pending_payment_enrollments %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ enrollment.class_enrolled.name }}</td>
+                            <td>{{ enrollment.class_enrolled.price|floatformat:"0" }}đ</td>
+                            <td>
+                                <a href="{% url 'payment' enrollment.id %}" class="btn btn-sm btn-primary">Thanh toán</a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center">Không có lớp cần thanh toán</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Update Avatar -->
+<div class="modal fade" id="avatarModal" tabindex="-1" aria-labelledby="avatarModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="avatarModalLabel">Cập nhật ảnh đại diện</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="avatarForm" method="post" enctype="multipart/form-data">
+                <div class="modal-body">
+                    {% csrf_token %}
+                    <input type="file" name="avatar" class="form-control" accept="image/*" required>
+                    <div class="mt-2 text-muted small">Hỗ trợ định dạng: JPG, PNG, GIF</div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .table-hover tbody tr:hover {
+        background-color: rgba(255, 255, 255, 0.5) !important;
+    }
+    th {
+        border-top: none !important;
+    }
+</style>
+
+<style>
+    .scrollable-container {
+        max-height: 250px; /* Chiều cao tối đa */
+        overflow-y: auto;
+        position: relative;
+    }
+
+    /* Fix header khi cuộn */
+    thead tr {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+    }
+
+    /* Tùy chỉnh thanh cuộn */
+    .scrollable-container::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .scrollable-container::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 4px;
+    }
+
+    .scrollable-container::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 4px;
+    }
+
+    .scrollable-container::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
+</style>
+
+<!-- Thêm script xử lý AJAX -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const updateBtn = document.getElementById('updateAvatarBtn');
+    const avatarForm = document.getElementById('avatarForm');
+
+    // Mở modal
+    updateBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        new bootstrap.Modal(document.getElementById('avatarModal')).show();
+    });
+
+    // Xử lý submit form
+    avatarForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const submitBtn = this.querySelector('button[type="submit"]');
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = `
+            <span class="spinner-border spinner-border-sm"></span>
+            Đang tải lên...
+        `;
+
+        try {
+            const formData = new FormData(this);
+            const response = await fetch("{% url 'update_avatar' %}", {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                }
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) throw new Error(data.error || 'Lỗi không xác định');
+
+            if (data.success) {
+                document.getElementById('userAvatar').src = data.new_url + '?ts=' + Date.now();
+                bootstrap.Modal.getInstance(document.getElementById('avatarModal')).hide();
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Lỗi: ' + (error.message || 'Cập nhật thất bại'));
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = 'Lưu thay đổi';
+        }
+    });
+});
+</script>
+
+
+{% endblock %}

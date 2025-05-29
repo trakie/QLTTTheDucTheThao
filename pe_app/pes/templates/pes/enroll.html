@@ -1,0 +1,56 @@
+{% extends 'pes/layout/base.html' %}
+{% load humanize %}
+
+{% block content %}
+<h1 class="text-danger text-center mt-2 mb-3">Đăng ký lớp học</h1>
+{% if error %}
+<div class="alert alert-danger mt-3">
+    {{ error }}
+    {% if 'Trạng thái' in error %}
+    <br><a href="{% url 'profile' user.id %}" class="alert-link">Xem hồ sơ của tôi</a>
+    {% endif %}
+</div>
+{% endif %}
+<div class="container">
+    <div class="row">
+        <!-- Hình ảnh -->
+        <div class="col-md-6">
+            <div>
+                <img style="border-radius: 20px; border: solid black 2px" src="{{ class_obj.image_url }}" alt="{{ class_obj.name }}" class="d-block w-100">
+            </div>
+        </div>
+
+        <!-- Thông tin chi tiết -->
+        <div class="col-md-6">
+            <div>
+                <h2>{{ class_obj.name }}</h2>
+            </div>
+            <h4 class="text-success">Giá: {{ class_obj.price|floatformat:0|intcomma }} VNĐ</h4>
+            <form method="post">
+                {% csrf_token %}
+                <p>
+                    <strong>Huấn luyện viên:</strong> {{ class_obj.trainer }}<br>
+                    <strong>Chọn thời gian:</strong>
+                    <select class="form-select mt-2" name="schedule" required>
+                        <option value="">-- Chọn lịch học --</option>
+                        {% for cs in class_schedules %}
+                        <option value="{{ cs.schedule.id }}">
+                            {{ cs.schedule.get_day_of_week_display }} -
+                            {{ cs.schedule.get_time_block_display }}
+                            {% if cs.schedule.notes %} ({{ cs.schedule.notes }}) {% endif %}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </p>
+                {% if error %}
+                <div class="alert alert-danger">{{ error }}</div>
+                {% endif %}
+                <div class="row">
+                    <button type="submit" class="btn btn-success btn-sm mt-3">Đăng ký</button>
+                    <a href="/" class="btn btn-primary btn-sm mt-1">Quay về trang chủ</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
