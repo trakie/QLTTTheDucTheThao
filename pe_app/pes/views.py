@@ -1,5 +1,6 @@
 import json
 from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.hashers import make_password
 from django.http import JsonResponse, HttpResponseForbidden
 from django.utils import timezone
 from django.views.decorators.http import require_http_methods
@@ -8,6 +9,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Prefetch, Q, Value
 from django.db.models.functions import Concat
 from django.core.paginator import Paginator
+from django.core.exceptions import ValidationError
 from . import dao
 from .models import Class, Trainer, Enrollment, Payment, ClassSchedule, UserProfile, Post
 import logging
@@ -158,6 +160,105 @@ def payment_success(request):
 
 
 @login_required
+@admin_staff_required
+def register(request):
+    error_message = None
+
+    if request.method == 'POST':
+        # Lấy dữ liệu từ form
+        username = request.POST.get('username')
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        email = request.POST.get('email')
+        phone = request.POST.get('phone')
+        address = request.POST.get('address')
+        password = request.POST.get('password')
+        password_confirm = request.POST.get('password_confirm')
+
+        # Kiểm tra mật khẩu
+        if password != password_confirm:
+            error_message = "Mật khẩu xác nhận không khớp!"
+        else:
+            # Kiểm tra username/email tồn tại
+            if UserProfile.objects.filter(username=username).exists():
+                error_message = "Tên đăng nhập đã tồn tại!"
+            elif UserProfile.objects.filter(email=email).exists():
+                error_message = "Email đã được đăng ký!"
+            else:
+                # Tạo user mới
+                try:
+                    user = UserProfile.objects.create(
+                        username=username,
+                        first_name=first_name,
+                        last_name=last_name,
+                        email=email,
+                        phone=phone,
+                        address=address,
+                        role='member',  # Mặc định là hội viên
+                        is_staff=False,
+                        is_active=True
+                    )
+                    user.password = make_password(password)
+                    user.full_clean()  # Kiểm tra validation
+                    user.save()
+                    return redirect('home')  # Chuyển hướng sau khi thành công
+                except ValidationError as e:
+                    error_message = ", ".join(e.messages)
+                except Exception as e:
+                    error_message = f"Lỗi hệ thống: {str(e)}"
+
+    return render(request, 'pes/register.html', {'error_message': error_message})
+
+
+@login_required
+@admin_staff_required
+def members(request):
+    search_kw = request.GET.get('kw')
+
+    # Lấy tất cả user có role là member
+    member_list = UserProfile.objects.filter(role='member')
+
+    if search_kw:
+        member_list = member_list.annotate(  # Thêm trường ảo full_name
+            full_name=Concat('first_name', Value(' '), 'last_name')
+        ).filter(
+            Q(username__icontains=search_kw) |
+            Q(email__icontains=search_kw) |
+            Q(full_name__icontains=search_kw) |
+            Q(first_name__icontains=search_kw) |
+            Q(last_name__icontains=search_kw)
+        )
+    return render(request, 'pes/members.html', {'members': member_list})
+
+
+@login_required
+@admin_staff_required
+def member_detail(request, member_id):
+    member = get_object_or_404(UserProfile, id=member_id, role='member')
+
+    if request.method == 'POST':
+        # Cập nhật thông tin được phép thay đổi
+        member.first_name = request.POST.get('first_name')
+        member.last_name = request.POST.get('last_name')
+        member.phone = request.POST.get('phone')
+        member.address = request.POST.get('address')
+
+        try:
+            member.full_clean()  # Validate dữ liệu
+            member.save()
+            # Redirect về danh sách với thông báo thành công
+            return redirect('members')
+        except ValidationError as e:
+            error_message = ", ".join(e.messages)
+            return render(request, 'pes/member_detail.html', {
+                'member': member,
+                'error_message': error_message
+            })
+
+    return render(request, 'pes/member_detail.html', {'member': member})
+
+
+@login_required
 def profile(request, pk):
     profile_user = get_object_or_404(UserProfile, pk=pk)
 
@@ -180,11 +281,12 @@ def profile(request, pk):
     return render(request, 'pes/profile.html', context)
 
 
+@login_required()
 def get_class_members(request, class_id):
     class_obj = get_object_or_404(Class, id=class_id)
     enrollments = Enrollment.objects.filter(
         class_enrolled=class_obj,
-        status__in=['active', 'pending']  # Lấy cả học viên đang chờ xử lý
+        status__in=['active']
     ).select_related('member')
 
     return render(request, 'pes/partials/class_members.html', {
