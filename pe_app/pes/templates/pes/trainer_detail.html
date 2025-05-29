@@ -31,8 +31,16 @@
                                 N/A
                               {% endif %}
                             </p>
-                            <a href="{% url 'class_detail' c.id %}" class="btn btn-primary btn-sm">Xem chi tiết</a>
-                            <a href="{% url 'enroll' c.id %}" class="btn btn-success btn-sm">Đăng ký</a>
+                            <div class="d-grid gap-2">
+                                <a href="{% url 'class_detail' c.id %}"
+                                   class="btn btn-outline-primary btn-sm">
+                                   <i class="fas fa-info-circle me-2"></i>Chi tiết
+                                </a>
+                                <a href="{% url 'enroll' c.id %}"
+                                   class="btn btn-gradient-primary btn-sm">
+                                   <i class="fas fa-calendar-check me-2"></i>Đăng ký ngay
+                                </a>
+                            </div>
                         </div>
                     </div>
                 {% endfor %}
@@ -102,6 +110,15 @@
         </div>
     </div>
 </div>
+
+<style>
+    .btn-gradient-primary {
+        background: linear-gradient(45deg, #2563eb, #3b82f6);
+        color: white !important;
+        border: none;
+        transition: all 0.3s ease;
+    }
+</style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {

@@ -85,7 +85,11 @@
             <p class="card-text">
                 {{ t.specialization }}
             </p>
-            <a href="{% url 'trainer_detail' t.user.id %}" class="btn btn-primary btn-sm">Xem chi tiết</a>
+            <div class="d-grid gap-2">
+                <a href="{% url 'trainer_detail' t.user.id %}" class="btn btn-outline-primary btn-sm">
+                    <i class="fas fa-info-circle me-2"></i>Chi tiết
+                </a>
+            </div>
         </div>
     </div>
     {% endfor %}
