@@ -126,11 +126,12 @@ def payment(request, enrollment_id):
         # Handle different payment methods
         if payment_method == 'cash':
             transaction_id = f"CASH-{enrollment.id}-{timezone.now().strftime('%Y%m%d%H%M%S')}"
-        elif not transaction_id:
-            return render(request, 'pes/payment.html', {
-                'enrollment': enrollment,
-                'error': 'Vui lòng nhập mã giao dịch!'
-            })
+        elif payment_method == 'momo':
+            transaction_id = f"MOMO-{enrollment.id}-{timezone.now().strftime('%Y%m%d%H%M%S')}"
+        elif payment_method == 'vnpay':
+            transaction_id = f"VNPY-{enrollment.id}-{timezone.now().strftime('%Y%m%d%H%M%S')}"
+        elif payment_method == 'stripe':
+            transaction_id = f"STRI-{enrollment.id}-{timezone.now().strftime('%Y%m%d%H%M%S')}"
 
         # Create payment record
         Payment.objects.create(

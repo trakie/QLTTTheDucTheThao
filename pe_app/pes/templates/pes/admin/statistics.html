@@ -1,0 +1,179 @@
+{% extends "admin/base_site.html" %}
+{% load humanize %}
+{% load i18n static %}
+
+{% block content %}
+<div class="content">
+    <h1>Thống kê tổng quan</h1>
+
+    <div class="stat-card">
+        <h2>👤 Số lượng hội viên</h2>
+        <p class="big-number">{{ user_count }}</p>
+        <h2>🏋️ Số lượng lớp học</h2>
+        <p class="big-number">{{ class_count }}</p>
+    </div>
+
+    <h1>Thống kê hệ thống</h1>
+
+    <!-- Form chọn thời gian -->
+    <form method="get" id="period-form">
+        <div style="display: flex; gap: 15px; align-items: center;">
+            <div>
+                <label for="period-select">Kỳ thống kê:</label>
+                <select name="period" id="period-select" onchange="updateDateInputs()">
+                    {% for option in period_options %}
+                        <option value="{{ option.value }}" {% if period == option.value %}selected{% endif %}>
+                            {{ option.label }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <button style="background: #1675A5;" type="submit">Xem</button>
+        </div>
+    </form>
+
+    <!-- Bảng doanh thu -->
+    <div class="module-custom">
+        <h2>Doanh thu từng lớp</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>STT</th>
+                    <th>Tên lớp</th>
+                    <th>Doanh thu (VND)</th>
+                    <th>Phần trăm</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in revenue_list %}
+                <tr>
+                    <td>{{ item.stt }}</td>
+                    <td>{{ item.class_name }}</td>
+                    <td>{{ item.revenue|floatformat:0|intcomma }}</td>
+                    <td>{{ item.percent }}%</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4">Không có dữ liệu doanh thu</td>
+                </tr>
+                {% endfor %}
+                {% if revenue_list %}
+                <tr style="font-weight: bold; background-color: #1675A5;">
+                    <td colspan="2">Tổng cộng</td>
+                    <td>{{ total_revenue|floatformat:0|intcomma }}</td>
+                    <td>100%</td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Bảng số lượng học viên -->
+    <div class="module-custom">
+        <h2>Số lượng học viên đăng ký</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>STT</th>
+                    <th>Tên lớp</th>
+                    <th>Số học viên</th>
+                    <th>Phần trăm</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in enrollment_list %}
+                <tr>
+                    <td>{{ item.stt }}</td>
+                    <td>{{ item.class_name }}</td>
+                    <td>{{ item.enrollments }}</td>
+                    <td>{{ item.percent }}%</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4">Không có dữ liệu học viên</td>
+                </tr>
+                {% endfor %}
+                {% if enrollment_list %}
+                <tr style="font-weight: bold; background-color: #1675A5;">
+                    <td colspan="2">Tổng cộng</td>
+                    <td>{{ total_enrollments }}</td>
+                    <td>100%</td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+function updateDateInputs() {
+    const periodSelect = document.getElementById('period-select');
+    const customRangeDiv = document.getElementById('custom-date-range');
+}
+</script>
+
+    <style>
+        .stat-card {
+            background: black;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            color: white;
+        }
+        .big-number {
+            font-size: 2.5em;
+            color: white;
+            margin: 10px 0;
+        }
+        .module-custom {
+            margin-bottom: 30px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .module-custom h2 {
+            background: #417690;
+            color: white;
+            padding: 10px 15px;
+            margin: 0;
+            font-size: 1.2em;
+        }
+
+        .module-custom table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .module-custom table th {
+            background: #1675A5;
+            padding: 8px 10px;
+            text-align: left;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .module-custom table td {
+            padding: 8px 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .module-custom table tr:hover td {
+            background-color: #64A3D4;
+        }
+
+        #period-form {
+            background: #417690;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+
+        #period-select {
+            padding: 5px 10px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+    </style>
+</div>
+{% endblock %}
