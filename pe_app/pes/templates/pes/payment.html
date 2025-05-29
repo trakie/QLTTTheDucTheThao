@@ -44,12 +44,12 @@
                             {% endfor %}
                         </select>
 
-                        <div id="transaction-id-group" class="mb-3" style="display: none;">
-                            <label>Mã giao dịch</label>
-                            <input type="text" name="transaction_id"
-                                   class="form-control"
-                                   placeholder="Nhập mã giao dịch">
-                        </div>
+<!--                        <div id="transaction-id-group" class="mb-3" style="display: none;">-->
+<!--                            <label>Mã giao dịch</label>-->
+<!--                            <input type="text" name="transaction_id"-->
+<!--                                   class="form-control"-->
+<!--                                   placeholder="Nhập mã giao dịch">-->
+<!--                        </div>-->
 
                         <button type="submit" class="btn btn-success w-100">
                             Xác nhận thanh toán
@@ -62,10 +62,10 @@
     </div>
 </div>
 
-<script>
-document.querySelector('select[name="payment_method"]').addEventListener('change', function(e) {
-    const transactionGroup = document.getElementById('transaction-id-group');
-    transactionGroup.style.display = ['cash', ''].includes(e.target.value) ? 'none' : 'block';
-});
-</script>
+<!--<script>-->
+<!--document.querySelector('select[name="payment_method"]').addEventListener('change', function(e) {-->
+<!--    const transactionGroup = document.getElementById('transaction-id-group');-->
+<!--    transactionGroup.style.display = ['cash', ''].includes(e.target.value) ? 'none' : 'block';-->
+<!--});-->
+<!--</script>-->
 {% endblock %}
